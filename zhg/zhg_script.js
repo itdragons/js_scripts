@@ -74,6 +74,7 @@ if (typeof $request != "undefined") {
     // console.log(`zhg_tmp: ${$nobyda.read(tmpKey)}`)
     console.log("start job working!")
     jobWork().then(() => {
+        $nobyda.done()
     })
 }
 

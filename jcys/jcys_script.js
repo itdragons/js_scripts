@@ -60,7 +60,9 @@ if (typeof $request != "undefined") {
     $nobyda.done($request);
 } else {
     console.log("start job working!")
-    jobWork().then(() => {})
+    jobWork().then(() => {
+        $nobyda.done()
+    })
 }
 
 

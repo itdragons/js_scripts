@@ -63,7 +63,9 @@ merge = {};
 if (typeof $request != "undefined") {
     loadUserInfo()
 } else {
-    jobWork().then(() => {})
+    jobWork().then(() => {
+        $nobyda.done()
+    })
 }
 
 async function jobWork() {
