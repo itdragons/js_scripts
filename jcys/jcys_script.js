@@ -11,8 +11,7 @@
 www.gza-e.com
 
 [Script]
-http-request ^https\:\/\/yqpt\.xa\.gov\.cn\/neusoft-appt\/appt-vfic\/app\/* script-path=jcys.js
-cron "0,30 7-15 * * *" script-path=jcys.js
+http-request ^https\:\/\/gza-e\.com\/api\/* script-path=jcys.js
 ```
 
 ## 配置 (QuanX)
@@ -25,7 +24,6 @@ www.gza-e.com
 ^https\:\/\/yqpt\.xa\.gov\.cn\/neusoft-appt\/appt-vfic\/app\/*  url script-request-header jcys.js
 
 [task_local]
-0,30 7-15 * * * jcys.js
 ```
 
 ## 说明
@@ -36,15 +34,17 @@ www.gza-e.com
    - QuanX: 把`jcys.js`传到`On My iPhone - Quantumult X - Scripts` (传到 iCloud 相同目录也可, 注意要打开 quanx 的 iCloud 开关)
 
 
-> 进入`健康西安`小程序，点`我的预约`，脚本会获取cookie信息。进入个人新冠疫苗接种页面，脚本会更新经纬度信息。
+> 进入`机场云商`小程序，点`账户信息`，脚本会同步用户cookies;
 
-> 每天7点到15点【0分、30分】各执行一次.
+## 常用操作
+let body= $response.body;
+var obj = JSON.parse(body);
+$done({body: JSON.stringify(obj)});
 */
-
+var $nobyda = nobyda();
 const appName = '机场云商'
-const accessTokenKey = 'jcys_accessToken'
-const mobileKey = 'jcys_mobile'
-
+const currentUserIdKey = 'jcys_current_user_id'
+const apiHost = "http://192.168.31.207:5000"
 const UserAgent = ' Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.12(0x18000c25) NetType/WIFI Language/zh_CN'
 
 const orgMap = {
@@ -52,27 +52,139 @@ const orgMap = {
     贵州空港新元: "817425775685795840"
 }
 
-var $nobyda = nobyda();
-merge = {};
 
-if (typeof $request != "undefined") {
-    loadUserInfo()
+merge = {};
+if ($nobyda.isResponse) {
+    loadUserInfoFromResponse()
+} else if ($nobyda.isRequest) {
+    // if ($request.method != 'OPTIONS') {
+    //     loadAccessTokenFromRequest()
+    // }
     $nobyda.done($request);
 } else {
-    console.log("start job working!")
-    jobWork().then(() => {
-        $nobyda.done()
-    })
+    console.log("start run……")
+    submitUser(currentUserId())
+    // jobWork().then(() => {})
 }
 
+function userAccessTokenKey(userId) {
+    return 'jcys_user_' + userId + '_token'
+}
 
-function loadUserInfo() {
-    if ($request.method === 'OPTIONS') {
+function userInfoKey(userId) {
+    return 'jcys_user_' + userId
+}
+
+function parseUserInfo(body) {
+    let userInfo = body.data.userInfo
+    if (!userInfo) {
+        return null;
+
+    }
+    return {
+        "userId": userInfo.id,
+        "mobilePhone": userInfo.mobilePhone,
+        "name": userInfo.trueName,
+        "address": userInfo.authenticationAddress
+    }
+}
+
+function parseUserAccessToken(body) {
+    let accessToken = body.data.accessToken
+    if (!accessToken){
+        return null;
+    }
+    return {
+        "userId": body.data.userId,
+        "accessToken": accessToken
+    }
+
+}
+
+function loadAccessTokenFromRequest() {
+    accessToken = $request.headers['accessToken']
+    if (typeof accessToken === "undefined") {
         return
     }
-    if ($request.headers) {
-        loadAuthorization()
+    console.log("accessToken:" + accessToken)
+    currentUserId = currentUserId()
+    // $nobyda.notify(appName, '当前用户', currentUserId)
+    if (currentUserId) {
+        submitUser(userAccessTokenKey(currentUserId))
+        // $nobyda.notify(appName, '同步用户', "xx123x")
+        if (updateData(userAccessTokenKey(currentUserId), accessToken)) {
+        }
     }
+}
+
+function submitUser(userId) {
+    userInfo = getUserInfo(userId)
+    console.log('userInfo:' + JSON.stringify(userInfo))
+    console.log('token:' + getUserAccessToken(userId))
+    fc_url = {
+        headers: {},
+        url: apiHost + '/apis/jcys/user/sync',
+        body: {
+            userId: userId,
+            accessToken: getUserAccessToken(userId),
+            mobilePhone: userInfo?.mobilePhone,
+            name: userInfo?.name,
+            address: userInfo?.address
+        }
+    }
+    console.log("fc_url：" + fc_url.url)
+    return new Promise((resolve, reject) => {
+        $nobyda.post(fc_url, function (error, response, data) {
+            try {
+                console.log("同步响应：" + data)
+                if (error) {
+                    throw new Error(error)
+                }
+                return resolve(data)
+            } catch (eor) {
+                $nobyda.notify(appName, '同步用户失败', '')
+                $nobyda.AnError('同步用户失败', "sync_user", eor, response, data)
+            }
+        })
+    }).then(data => {
+        dataOjb = JSON.parse(data)
+        return dataOjb.data.result
+    }, () => {
+    });
+    // $nobyda.notify(appName, '同步用户', userId)
+}
+
+function getUserAccessToken(userId){
+    return $nobyda.read(userAccessTokenKey(userId))
+}
+function getUserInfo(userId){
+    userInfo = $nobyda.read(userInfoKey(userId))
+    if (!userInfo){
+        return
+    }
+    return JSON.parse(userInfo)
+}
+function currentUserId() {
+    return $nobyda.read(currentUserIdKey)
+}
+
+function loadUserInfoFromResponse() {
+    let body = JSON.parse($response.body)
+    if (body.code === 0) {
+        userAccessToken = parseUserAccessToken(body)
+        if(userAccessToken){
+            if(updateData(userAccessTokenKey(userAccessToken.userId), userAccessToken.accessToken)){
+                submitUser(userAccessToken.userId)
+               // $nobyda.notify(appName, '通知同步' + userAccessToken.userId, userAccessToken.accessToken)
+            }
+        }
+        userInfo = parseUserInfo(body)
+        if (userInfo) {
+            updateData(currentUserIdKey, userInfo.userId)
+            updateData(userInfoKey(userInfo.userId), JSON.stringify(userInfo), false)
+        }
+    }
+    $nobyda.done({body: $response.body})
 }
 
 function loadAuthorization() {
@@ -128,7 +240,11 @@ async function get_people_code() {
 async function req_do_people(orgId, uuid, code) {
     merge.req_do_people = {};
     console.log(`预约参数: orgId= ${orgId}, uuid= ${uuid}, code= ${code}`)
-    fc_url = await get_invoke_url("https://www.gza-e.com/api/consumer/pro/doPeople", {"orgId": orgId, "uuid": uuid, "code": code})
+    fc_url = await get_invoke_url("https://www.gza-e.com/api/consumer/pro/doPeople", {
+        "orgId": orgId,
+        "uuid": uuid,
+        "code": code
+    })
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             $nobyda.post(fc_url, function (error, response, data) {
@@ -151,7 +267,8 @@ async function req_do_people(orgId, uuid, code) {
         }, 500)
     }).then(data => {
         return data
-    }, () => {});
+    }, () => {
+    });
 }
 
 
@@ -197,7 +314,8 @@ async function req_people_code() {
             baseImage: data.baseImage,
             uuid: data.uuid
         }
-    }, () => {});
+    }, () => {
+    });
 }
 
 
@@ -228,7 +346,8 @@ async function parse_base_image(base64Image) {
     }).then(data => {
         dataOjb = JSON.parse(data)
         return dataOjb.data.result
-    }, () => {});
+    }, () => {
+    });
 }
 
 
@@ -343,7 +462,8 @@ async function get_sign_params(url, params) {
         }, 0)
     }).then(data => {
         return JSON.parse(data)
-    }, () => {});
+    }, () => {
+    });
 }
 
 function is_error_code(code) {
@@ -353,30 +473,40 @@ function is_error_code(code) {
     return error_codes.indexOf(code) !== -1
 }
 
-function updateData(key, value) {
+function updateData(key, value, isNotify = true) {
     try {
+        value = value !== undefined ? value : ""
         let dataRead = $nobyda.read(key)
+        let notifyMsg = ""
+        let success = false
         if (dataRead) {
             if (dataRead !== value) {
-                if (!$nobyda.write(value, key)) {
-                    $nobyda.notify(appName, "", "更新" + key + "数据失败 ‼️");
+                if ($nobyda.write(value, key)) {
+                    success = true
+                    notifyMsg = "更新" + key + "数据成功 🎉"
                 } else {
-                    $nobyda.notify(appName, "", "更新" + key + "数据成功 🎉");
+                    notifyMsg = "更新" + key + "数据失败 ‼️"
                 }
             }
         } else {
             if (!$nobyda.write(value, key)) {
-                $nobyda.notify(appName, "", "首次写入" + key + "数据失败 ‼️");
+                notifyMsg = "首次写入" + key + "数据失败 ‼️"
             } else {
-                $nobyda.notify(appName, "", "首次写入" + key + "数据成功 🎉");
+                success = true
+                notifyMsg = "首次写入" + key + "数据成功 🎉"
             }
         }
+        if (isNotify && notifyMsg !== '') {
+            $nobyda.notify(appName, "", notifyMsg);
+        }
+        return success
     } catch (eor) {
         $nobyda.write("", key)
         $nobyda.notify(appName, "写入" + key + "数据失败", '已尝试清空历史数据, 请重试 ⚠️')
-        console.log(`\n"写入${key}数据出现错误 ‼️\n${JSON.stringify(eor)}\n\n${eor}\n\n${JSON.stringify($request.headers)}\n`)
+        console.log(`\n"写入${key}数据出现错误 ‼️\n${JSON.stringify(eor)}\n\n${eor}\n\n`)
     }
 }
+
 
 function formatDate(date) {
     let myyear = date.getFullYear();
@@ -406,6 +536,7 @@ function getQueryString(url, name) {
 function nobyda() {
     const start = Date.now()
     const isRequest = typeof $request != "undefined"
+    const isResponse = typeof $response != "undefined"
     const isSurge = typeof $httpClient != "undefined"
     const isQuanX = typeof $task != "undefined"
     const isLoon = typeof $loon != "undefined"
@@ -622,6 +753,7 @@ function nobyda() {
     return {
         AnError,
         isRequest,
+        isResponse,
         isJSBox,
         isSurge,
         isQuanX,
