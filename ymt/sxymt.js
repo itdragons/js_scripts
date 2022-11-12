@@ -33,7 +33,7 @@ function rewrite() {
         data = body["data"]
         data["detTime"] = mockDetTime();  // 最近一次核酸结果，判定是否24小时
         data["collectTime"] = mockCollectTime(); // 最近一次采样时间
-        if (data.todayCollectTime === null) {
+        if (data.todayCollectTime === null && isTimePassed(7)) {
             data["todayCollectTime"] = mockTodayCollectTime();
             data["collectTime"] = data["todayCollectTime"];
         }
@@ -57,11 +57,8 @@ function isTimePassed(hours) {
 
 // 获取今日采样时间
 function mockTodayCollectTime() {
-    if (!isTimePassed(7)) {
-        return null
-    }
     let currentDate = new Date();
-    return nextDate(currentDate, 0) + " 08:09:17" 
+    return nextDate(currentDate, 0) + " 08:02:09" 
 }
 
 // 获取检测时间
