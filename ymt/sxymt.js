@@ -21,8 +21,8 @@ function rewriteNucListNew() {
             console.log("今日核酸未采样, 将mock数据")
             firstData["collectTime"] = mockCollectTime();
             firstData["detTime"] = mockDetTime();
+            body["data"]["nucInfo"] = firstData
         }
-        body["data"]["nucInfo"] = firstData
         console.log("上次采样时间: " + firstData["collectTime"])
         console.log("核酸结果时间: " + firstData["detTime"])
         $nobyda.done({body: JSON.stringify(body)})
