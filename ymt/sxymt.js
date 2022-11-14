@@ -1,28 +1,38 @@
 var $nobyda = nobyda()
-// $nobyda.notify('test', '正在运行：陕西一码通')
 var key = 'data'
+var todayCollectTimeKey = "todayCollectTime"
 if ($nobyda.isResponse) {
+    console.log("request url:" + $request.url)
     if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/nuc/getRecentNuc') {
         rewrite()
     } else if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/getSxNucListNew') {
         rewriteNucListNew() 
     }
-} else {
-    console.log("run ……")
-    // console.log($nobyda.read(key))
-    console.log("finished ……")
+    $nobyda.done() 
 }
 
 function rewriteNucListNew() {
-    // $nobyda.noify('response', $response.body)
     let body = JSON.parse($response.body)
     if (body.code === "0") {
+        console.log("**** 核酸检测记录 *****")
+        console.log(JSON.stringify(body, null, "\t"))
         firstData = body["data"]["nucList"][0]
-        firstData["collectTime"] = mockCollectTime();
-        firstData["detTime"] = mockDetTime();
-        body["data"]["nucInfo"] = firstData 
+        if (!isTodayCollect()) {
+            console.log("今日核酸未采样, 将mock数据")
+            firstData["collectTime"] = mockCollectTime();
+            firstData["detTime"] = mockDetTime();
+        }
+        body["data"]["nucInfo"] = firstData
+        console.log("上次采样时间: " + firstData["collectTime"])
+        console.log("核酸结果时间: " + firstData["detTime"])
         $nobyda.done({body: JSON.stringify(body)})
     }
+}
+
+function isTodayCollect(){
+    todayCollectTime = "" + $nobyda.read(todayCollectTimeKey)
+    console.log("读取今日采样时间: " + todayCollectTime) 
+    return todayCollectTime.indexOf(today()) != -1; 
 }
 
 
@@ -30,13 +40,23 @@ function rewrite() {
     $nobyda.write($response.body, key)
     let body = JSON.parse($response.body)
     if (body.code === "0") {
+        console.log("**** 扫码结果 *****")
+        console.log(JSON.stringify(body, null, "\t"))
         data = body["data"]
         data["detTime"] = mockDetTime();  // 最近一次核酸结果，判定是否24小时
-        data["collectTime"] = mockCollectTime(); // 最近一次采样时间
-        if (data.todayCollectTime === null && isTimePassed(7)) {
-            data["todayCollectTime"] = mockTodayCollectTime();
-            data["collectTime"] = data["todayCollectTime"];
+        if (data["todayCollectTime"] === null) { // 如果今天还未做核酸
+            data["collectTime"] = mockCollectTime(); // 生成最近一次采样时间
+            if (isTimePast(7)) {   // 如果过了7点，就生成今天采样时间
+                data["todayCollectTime"] = mockTodayCollectTime();
+                data["collectTime"] = data["todayCollectTime"];
+            }
+        } else {
+            console.log("写入今日采样时间: " + data["todayCollectTime"])
+            $nobyda.write(data["todayCollectTime"], todayCollectTimeKey)
         }
+        console.log("今日采样时间: " + data["todayCollectTime"])
+        console.log("上次采样时间: " + data["collectTime"])
+        console.log("核酸结果时间: " + data["detTime"])
         $nobyda.done({body: JSON.stringify(body)})
     }
 }
@@ -50,21 +70,24 @@ function nextDate(date, day) {
     return y + "/" + m + "/" + d;
 };
 
-function isTimePassed(hours) {
+function isTimePast(hours) {
     let currentDate = new Date();
-    return currentDate.getHours() > hours;
+    return currentDate.getHours() >= hours;
 }
 
 // 获取今日采样时间
 function mockTodayCollectTime() {
-    let currentDate = new Date();
-    return nextDate(currentDate, 0) + " 08:02:09" 
+    return today + " 07:09:17" 
 }
 
-// 获取检测时间
+function today() {
+    return nextDate(new Date(), 0); 
+}
+
+// 获取检测出结果时间
 function mockDetTime() {
     let currentDate = new Date();
-    if (isTimePassed(12)) {
+    if (isTimePast(12)) {
         return nextDate(currentDate, 0) + " 12:10:16"
     }
     return nextDate(currentDate, -1) + " 15:10:16"
@@ -73,10 +96,10 @@ function mockDetTime() {
 // 获取采样时间
 function mockCollectTime() {
     let currentDate = new Date();
-    if (isTimePassed(12)) {
-        return nextDate(currentDate, 0) + " 08:09:17"
+    if (isTimePast(12)) {
+        return nextDate(currentDate, 0) + " 07:09:17"
     }
-    return nextDate(currentDate, -1) + " 08:02:09" 
+    return nextDate(currentDate, -1) + " 07:09:09" 
 }
 
 
