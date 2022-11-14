@@ -14,24 +14,24 @@ if ($nobyda.isResponse) {
 function rewriteNucListNew() {
     let body = JSON.parse($response.body)
     if (body.code === "0") {
-        console.log("**** 核酸检测记录 *****")
+        console.log("**** 🍋检测记录 *****")
         console.log(JSON.stringify(body, null, "\t"))
         firstData = body["data"]["nucList"][0]
         if (!isTodayCollect()) {
-            console.log("今日核酸未采样, 将mock数据")
+            console.log("今日🍋未采, 将mock数据")
             firstData["collectTime"] = mockCollectTime();
             firstData["detTime"] = mockDetTime();
             body["data"]["nucInfo"] = firstData
         }
-        console.log("上次采样时间: " + firstData["collectTime"])
-        console.log("核酸结果时间: " + firstData["detTime"])
+        console.log("上次🍋的时间: " + firstData["collectTime"])
+        console.log("🍋出结果时间: " + firstData["detTime"])
         $nobyda.done({body: JSON.stringify(body)})
     }
 }
 
 function isTodayCollect(){
     todayCollectTime = "" + $nobyda.read(todayCollectTimeKey)
-    console.log("读取今日采样时间: " + todayCollectTime) 
+    console.log("读取今日🍋的时间: " + todayCollectTime) 
     return todayCollectTime.indexOf(today()) != -1; 
 }
 
@@ -40,23 +40,23 @@ function rewrite() {
     $nobyda.write($response.body, key)
     let body = JSON.parse($response.body)
     if (body.code === "0") {
-        console.log("**** 扫码结果 *****")
+        console.log("**** 🍋扫码数据 *****")
         console.log(JSON.stringify(body, null, "\t"))
         data = body["data"]
-        data["detTime"] = mockDetTime();  // 最近一次核酸结果，判定是否24小时
-        if (data["todayCollectTime"] === null) { // 如果今天还未做核酸
-            data["collectTime"] = mockCollectTime(); // mock最近一次采样时间
-            if (isTimePast(7)) {   // 如果过了7点，就mock今天采样时间
+        data["detTime"] = mockDetTime();  // 最近一次🍋结果，判定是否24小时
+        if (data["todayCollectTime"] === null) { // 如果今天还未做🍋
+            data["collectTime"] = mockCollectTime(); // mock最近一次🍋的时间
+            if (isTimePast(7)) {   // 如果过了7点，就mock今天🍋的时间
                 data["todayCollectTime"] = mockTodayCollectTime();
                 data["collectTime"] = data["todayCollectTime"];
             }
         } else {
-            console.log("写入今日采样时间: " + data["todayCollectTime"])
+            console.log("写入今日🍋的时间: " + data["todayCollectTime"])
             $nobyda.write(data["todayCollectTime"], todayCollectTimeKey)
         }
-        console.log("今日采样时间: " + data["todayCollectTime"])
-        console.log("上次采样时间: " + data["collectTime"])
-        console.log("核酸结果时间: " + data["detTime"])
+        console.log("今日🍋的时间: " + data["todayCollectTime"])
+        console.log("上次🍋的时间: " + data["collectTime"])
+        console.log("🍋出结果时间: " + data["detTime"])
         $nobyda.done({body: JSON.stringify(body)})
     }
 }
@@ -75,7 +75,7 @@ function isTimePast(hours) {
     return currentDate.getHours() >= hours;
 }
 
-// mock今日采样时间
+// mock今日🍋的时间
 function mockTodayCollectTime() {
     return today + " 07:09:17" 
 }
@@ -93,7 +93,7 @@ function mockDetTime() {
     return nextDate(currentDate, -1) + " 15:10:16"
 }
 
-// mock采样时间
+// mock🍋的时间
 function mockCollectTime() {
     let currentDate = new Date();
     if (isTimePast(12)) {
