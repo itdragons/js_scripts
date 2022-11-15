@@ -77,7 +77,7 @@ function isTimePast(hours) {
 
 // mock今日🍋的时间
 function mockTodayCollectTime() {
-    return today + " 07:09:17" 
+    return today() + " 07:09:17" 
 }
 
 function today() {
