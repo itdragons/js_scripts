@@ -99,7 +99,7 @@ function mockCollectTime() {
     if (isTimePast(12)) {
         return nextDate(currentDate, 0) + " 07:09:17"
     }
-    return nextDate(currentDate, -1) + " 07:09:09" 
+    return nextDate(currentDate, -1) + " 07:09:17" 
 }
 
 
