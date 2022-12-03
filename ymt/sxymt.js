@@ -1,10 +1,12 @@
 var $nobyda = nobyda()
-var key = 'data'
+var recentNucDataKey = 'recentNucData'
 var todayCollectTimeKey = "todayCollectTime"
 if ($nobyda.isResponse) {
     console.log("request url:" + $request.url)
     if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/nuc/getRecentNuc') {
-        rewrite()
+        rewriteRecentNuc()
+    } else if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/getNucCollect') {
+        rewriteNucCollect()
     } else if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/getSxNucListNew') {
         rewriteNucListNew() 
     }
@@ -35,9 +37,17 @@ function isTodayCollect(){
     return todayCollectTime.indexOf(today()) != -1; 
 }
 
+function rewriteNucCollect(){
+    let body = JSON.parse($response.body)
+    console.log(JSON.stringify(body, null, "\t")) 
+    if (body.code === "0") {
+        recentNucData = $nobyda.read(recentNucDataKey)
+        console.log(recentNucData, null, "\t")
+        $nobyda.done({body: recentNucData}) 
+    }
+}
 
-function rewrite() {
-    $nobyda.write($response.body, key)
+function rewriteRecentNuc() {
     let body = JSON.parse($response.body)
     if (body.code === "0") {
         console.log("**** 🍋扫码数据 *****")
@@ -57,6 +67,7 @@ function rewrite() {
         console.log("今日🍋的时间: " + data["todayCollectTime"])
         console.log("上次🍋的时间: " + data["collectTime"])
         console.log("🍋出结果时间: " + data["detTime"])
+        $nobyda.write(JSON.stringify(body), recentNucDataKey)
         $nobyda.done({body: JSON.stringify(body)})
     }
 }
