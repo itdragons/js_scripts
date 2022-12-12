@@ -1,16 +1,31 @@
 var $nobyda = nobyda()
 var recentNucDataKey = 'recentNucData'
 var todayCollectTimeKey = "todayCollectTime"
+var relativeInfoKey = 'relativeInfo'
 if ($nobyda.isResponse) {
     console.log("request url:" + $request.url)
-    if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/nuc/getRecentNuc') {
+    if ($request.url.indexOf('/biz/sx/nuc/getRecentNuc') != -1) {
         rewriteRecentNuc()
-    } else if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/getNucCollect') {
+    } else if ($request.url.indexOf('/biz/sx/getNucCollect') != -1) {
         rewriteNucCollect()
-    } else if ($request.url === 'https://ymt.shaanxi.gov.cn/biz/sx/getSxNucListNew') {
+    } else if ($request.url.indexOf('/biz/sx/getSxNucListNew') != -1) {
         rewriteNucListNew() 
     }
+    if ($request.url.indexOf('/biz/relative/sx/getRelativeInfo') != -1) {
+        stashRelativeInfo()
+    } else if ($request.url.indexOf('/biz/relative/sx/getNucListNew')!= -1) {
+        rewriteRelativeNucListNew()
+    }
     $nobyda.done() 
+}
+
+function stashRelativeInfo() {
+    let body = JSON.parse($response.body)
+    if (body.code === "0") {
+        console.log("**** 🍋家属信息 *****")
+        console.log(JSON.stringify(body, null, "\t"))
+        $nobyda.write(JSON.stringify(body), relativeInfoKey) 
+    }
 }
 
 function rewriteNucListNew() {
@@ -31,6 +46,31 @@ function rewriteNucListNew() {
     }
 }
 
+function rewriteRelativeNucListNew() {
+    let body = JSON.parse($response.body)
+    if (body.code === "0") {
+        console.log("**** 🍋家属检测记录 *****")
+        console.log(JSON.stringify(body, null, "\t"))
+        relativeInfo = JSON.parse($nobyda.read(relativeInfoKey)).data
+        body["data"]["nucList"] = body["data"]["nucList"] || []
+        mockData = {
+            "detTime": mockDetTime(),
+            "collectTime": mockCollectTime(),
+            "detOrg": '西安华曦医学检验实验室',
+            "detResult": '1',
+            "name": relativeInfo.relativeName,
+            "cardNum": relativeInfo.relativeIdCard,
+            "relation": '1',
+            "currentTime": currentTime()
+        }
+        body["data"]["nucList"][0] = mockData
+        body["data"]["nucInfo"] = mockData
+        console.log("rewrite:")
+        console.log(JSON.stringify(body, null, "\t"))
+        $nobyda.done({body: JSON.stringify(body)})
+    }
+}
+
 function isTodayCollect(){
     todayCollectTime = "" + $nobyda.read(todayCollectTimeKey)
     console.log("读取今日🍋的时间: " + todayCollectTime) 
@@ -43,9 +83,10 @@ function rewriteNucCollect(){
     if (body.code === "0") {
         recentNucData = $nobyda.read(recentNucDataKey)
         console.log(recentNucData, null, "\t")
-        $nobyda.done({body: recentNucData}) 
+        $nobyda.done({body: recentNucData})
     }
 }
+
 
 function rewriteRecentNuc() {
     let body = JSON.parse($response.body)
@@ -72,13 +113,17 @@ function rewriteRecentNuc() {
     }
 }
 
-function nextDate(date, day) {  
+function nextDate(date, day, includeTime) {  
     var dd = new Date(date);
     dd.setDate(dd.getDate() + day);
     var y = dd.getFullYear();
     var m = dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1;
     var d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();
-    return y + "/" + m + "/" + d;
+    var result = y + "/" + m + "/" + d
+    if (includeTime) {
+        return result + ' ' + dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds();
+    }
+    return result;
 };
 
 function isTimePast(hours) {
@@ -95,6 +140,9 @@ function today() {
     return nextDate(new Date(), 0); 
 }
 
+function currentTime() {
+    return nextDate(new Date(), 0, true); 
+} 
 // mock检测出结果时间
 function mockDetTime() {
     let currentDate = new Date();
