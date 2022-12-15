@@ -55,7 +55,7 @@ function rewriteNucListNew() {
                 lastData["detTime"] = mockDetTime();
             }
         } else {
-            console.log("🍋无记录，将mock数据")
+            console.log("无🍋记录，将mock数据")
             let fsQrcodeData = JSON.parse($nobyda.read(fsQrcodeDataKey)).data
             lastData = mockNaData(fsQrcodeData.personName, fsQrcodeData.idCard)
         }
