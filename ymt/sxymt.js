@@ -1,10 +1,13 @@
 var $nobyda = nobyda()
+var fsQrcodeDataKey = 'fsQrcodeData'
 var recentNucDataKey = 'recentNucData'
 var todayCollectTimeKey = "todayCollectTime"
 var relativeInfoKey = 'relativeInfo'
 if ($nobyda.isResponse) {
     console.log("request url:" + $request.url)
-    if ($request.url.indexOf('/biz/sx/nuc/getRecentNuc') != -1) {
+    if ($request.url.indexOf('/biz/sx/fsQrcode') != -1) {
+        stashFsQrcode()
+    } else if ($request.url.indexOf('/biz/sx/nuc/getRecentNuc') != -1) {
         rewriteRecentNuc()
     } else if ($request.url.indexOf('/biz/sx/getNucCollect') != -1) {
         rewriteNucCollect()
@@ -17,6 +20,15 @@ if ($nobyda.isResponse) {
         rewriteRelativeNucListNew()
     }
     $nobyda.done() 
+}
+
+function stashFsQrcode() {
+    let body = JSON.parse($response.body)
+    if (body.code === "0") {
+        console.log("**** 🍋扫码数据 *****")
+        console.log(JSON.stringify(body, null, "\t"))
+        $nobyda.write(JSON.stringify(body), fsQrcodeDataKey) 
+    }
 }
 
 function stashRelativeInfo() {
@@ -33,15 +45,26 @@ function rewriteNucListNew() {
     if (body.code === "0") {
         console.log("**** 🍋检测记录 *****")
         console.log(JSON.stringify(body, null, "\t"))
-        firstData = body["data"]["nucList"][0]
-        if (!isTodayCollect()) {
-            console.log("今日🍋未采, 将mock数据")
-            firstData["collectTime"] = mockCollectTime();
-            firstData["detTime"] = mockDetTime();
-            body["data"]["nucInfo"] = firstData
+        let nucList = body["data"]["nucList"] || []
+        let lastData = {}
+        if (nucList.length > 0){
+            lastData = nucList[0]
+            if (!isTodayCollect()) {
+                console.log("今日🍋未采, 将mock数据")
+                lastData["collectTime"] = mockCollectTime();
+                lastData["detTime"] = mockDetTime();
+            }
+        } else {
+            console.log("🍋无记录，将mock数据")
+            let fsQrcodeData = JSON.parse($nobyda.read(fsQrcodeDataKey)).data
+            lastData = mockNaData(fsQrcodeData.personName, fsQrcodeData.idCard)
         }
-        console.log("上次🍋的时间: " + firstData["collectTime"])
-        console.log("🍋出结果时间: " + firstData["detTime"])
+        body["data"]["nucList"][0] = lastData
+        body["data"]["nucInfo"] = lastData
+        console.log("rewrite:")
+        console.log(JSON.stringify(body, null, "\t"))
+        console.log("上次🍋的时间: " + lastData["collectTime"])
+        console.log("🍋出结果时间: " + lastData["detTime"])
         $nobyda.done({body: JSON.stringify(body)})
     }
 }
@@ -51,24 +74,28 @@ function rewriteRelativeNucListNew() {
     if (body.code === "0") {
         console.log("**** 🍋家属检测记录 *****")
         console.log(JSON.stringify(body, null, "\t"))
-        relativeInfo = JSON.parse($nobyda.read(relativeInfoKey)).data
+        let relativeInfo = JSON.parse($nobyda.read(relativeInfoKey)).data
         body["data"]["nucList"] = body["data"]["nucList"] || []
-        mockData = {
-            "detTime": mockDetTime(),
-            "collectTime": mockCollectTime(),
-            "detOrg": '西安华曦医学检验实验室',
-            "detResult": '1',
-            "name": relativeInfo.relativeName,
-            "cardNum": relativeInfo.relativeIdCard,
-            "relation": '1',
-            "currentTime": currentTime()
-        }
+        mockData = mockNaData(relativeInfo.relativeName, relativeInfo.relativeIdCard)
         body["data"]["nucList"][0] = mockData
         body["data"]["nucInfo"] = mockData
         console.log("rewrite:")
         console.log(JSON.stringify(body, null, "\t"))
         $nobyda.done({body: JSON.stringify(body)})
     }
+}
+
+function mockNaData(name, idCard) {
+    return {
+        "detTime": mockDetTime(),
+        "collectTime": mockCollectTime(),
+        "detOrg": '西安华曦医学检验实验室',
+        "detResult": '1',
+        "name": name,
+        "cardNum": idCard,
+        "relation": '1',
+        "currentTime": currentTime()
+    } 
 }
 
 function isTodayCollect(){
@@ -91,7 +118,7 @@ function rewriteNucCollect(){
 function rewriteRecentNuc() {
     let body = JSON.parse($response.body)
     if (body.code === "0") {
-        console.log("**** 🍋扫码数据 *****")
+        console.log("**** 🍋健康信息 *****")
         console.log(JSON.stringify(body, null, "\t"))
         data = body["data"]
         data["detTime"] = mockDetTime();  // 最近一次🍋结果，判定是否24小时
@@ -105,9 +132,16 @@ function rewriteRecentNuc() {
             console.log("写入今日🍋的时间: " + data["todayCollectTime"])
             $nobyda.write(data["todayCollectTime"], todayCollectTimeKey)
         }
+        fsQrcodeData = JSON.parse($nobyda.read(fsQrcodeDataKey)).data
+        data["detResult"] = "1"
+        data["relation"] = "1"
+        data["name"] = fsQrcodeData["personName"],
+		data["cardNum"] = fsQrcodeData["idCard"],
+        console.log("rewrite:")
+        console.log(JSON.stringify(body, null, "\t"))
         console.log("今日🍋的时间: " + data["todayCollectTime"])
         console.log("上次🍋的时间: " + data["collectTime"])
-        console.log("🍋出结果时间: " + data["detTime"])
+        console.log("🍋报告时间: " + data["detTime"])
         $nobyda.write(JSON.stringify(body), recentNucDataKey)
         $nobyda.done({body: JSON.stringify(body)})
     }
@@ -143,7 +177,7 @@ function today() {
 function currentTime() {
     return nextDate(new Date(), 0, true); 
 } 
-// mock检测出结果时间
+// mock检测出报告时间
 function mockDetTime() {
     let currentDate = new Date();
     if (isTimePast(12)) {
