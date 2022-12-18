@@ -1,6 +1,13 @@
 var $nobyda = nobyda()
 if ($nobyda.isResponse) {
     console.log("request url:" + $request.url)
+    console.log($response)
+    console.log($response.status)
+    console.log(JSON.stringify($response))
+    // if ($request.url.indexOf('/client.action?functionId=serverConfig') != -1) {
+    //     let body = JSON.parse($response.body)
+    //     console.log(JSON.stringify(body, null, "\t"))
+    // }
     $nobyda.done() 
 }
 

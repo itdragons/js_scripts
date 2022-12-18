@@ -4,7 +4,6 @@ var recentNucDataKey = 'recentNucData'
 var todayCollectTimeKey = "todayCollectTime"
 var relativeInfoKey = 'relativeInfo'
 if ($nobyda.isResponse) {
-    console.log("request url:" + $request.url)
     if ($request.url.indexOf('/biz/sx/fsQrcode') != -1) {
         stashFsQrcode()
     } else if ($request.url.indexOf('/biz/sx/nuc/getRecentNuc') != -1) {
@@ -45,9 +44,10 @@ function rewriteNucListNew() {
     if (body.code === "0") {
         console.log("**** 🍋检测记录 *****")
         console.log(JSON.stringify(body, null, "\t"))
-        let nucList = body["data"]["nucList"] || []
+        body["data"]["nucList"] = body["data"]["nucList"] || []
+        let nucList = body["data"]["nucList"]
         let lastData = {}
-        if (nucList.length > 0){
+        if (nucList.length > 0) {
             lastData = nucList[0]
             if (!isTodayCollect()) {
                 console.log("今日🍋未采, 将mock数据")
