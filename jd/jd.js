@@ -1,6 +1,6 @@
 var $nobyda = nobyda()
 if ($nobyda.isResponse) {
-    print(printCurrentDate())
+    printCurrentDate()
     console.log($response)
     console.log($response.status)
     console.log(JSON.stringify($response))
