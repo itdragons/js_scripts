@@ -9,6 +9,8 @@ if ($nobyda.isResponse) {
     //     console.log(JSON.stringify(body, null, "\t"))
     // }
     $nobyda.done() 
+} else {
+    printCurrentDate()
 }
 
 
