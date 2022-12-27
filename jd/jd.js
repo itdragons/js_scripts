@@ -1,6 +1,6 @@
 var $nobyda = nobyda()
 if ($nobyda.isResponse) {
-    console.log("request url:" + $request.url)
+    print(printCurrentDate())
     console.log($response)
     console.log($response.status)
     console.log(JSON.stringify($response))
@@ -11,6 +11,11 @@ if ($nobyda.isResponse) {
     $nobyda.done() 
 }
 
+
+function printCurrentDate() {
+    let dd = new Date()
+    console.log(dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds() + ":" + dd.getMilliseconds())
+}
 
 function nobyda() {
     const start = Date.now()
