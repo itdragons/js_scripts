@@ -1,38 +1,34 @@
 var $nobyda = nobyda()
-const cartPath = "cart"
-const url = $request.url;
-if ($nobyda.isResponse) {
-    console.log(currentDate())
-    // sleep(5000)
-    // console.log($response.body)
-    const body = $response.body;
-    if (url.indexOf(cartPath) != -1) {
-        // sleep(5000)
-        let obj = JSON.parse(body);
-        obj["cartInfo"]["vendors"][0].shopName = obj["cartInfo"]["vendors"][0].shopName + currentDate()
-        console.log(cartPath + " rewrite:" +  JSON.stringify(obj))
-        $done({ body: JSON.stringify(obj) });
-    }
-    console.log(currentDate())
+
+if ($nobyda.isRequest) {
+    printCurrentDate()
+    sleep(5000)
+    printCurrentDate()
+    console.log($request)
     // if ($request.url.indexOf('/client.action?functionId=serverConfig') != -1) {
     //     let body = JSON.parse($response.body)
     //     console.log(JSON.stringify(body, null, "\t"))
     // }
-} else {
-    console.log(currentDate())
-    // sleep(5000)
-    console.log($request)
+    $nobyda.done($request) 
+} else if ($nobyda.isResponse) {
+    printCurrentDate()
+    sleep(5000)
+    printCurrentDate()
+}else {
+    printCurrentDate()
+    sleep(2000)
+    printCurrentDate()
 }
+
 
 function sleep(delay) {
     for (var t = Date.now(); Date.now() - t <= delay;);
 }
 
-function currentDate() {
+function printCurrentDate() {
     let dd = new Date()
-    return dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds() + ":" + dd.getMilliseconds()
+    console.log(dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds() + ":" + dd.getMilliseconds())
 }
-
 
 function nobyda() {
     const start = Date.now()
