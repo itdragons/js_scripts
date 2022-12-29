@@ -24,8 +24,7 @@ if (isRequest) {
      failed: 59:800, 59:900, 59:950
     *******************************************************
      WIFI 下单到付款2s
-     success: 00:500, 00:250(3), 00:100(4), 00:80(1[-1])
-     failed: 59:980, 00:00, 00:50, 00:80(1)
+     00:500(1), 00:300(3), 00:290(3), 00:250(,-1), 00:200(2,-2), 00:150(1,-3), 00:120(2,-1), 00:100(5,-2), 00:80(1,-1), 00:50(,-1)
     */
     if (functionId == submitOrderPath) {
         console.log("提交订单Request")
@@ -33,7 +32,7 @@ if (isRequest) {
             let dd = new Date()
             let seconds = dd.getSeconds()
             let milliSeconds = dd.getMilliseconds()
-            if (seconds == 0 && milliSeconds >= 100) {
+            if (seconds == 0 && milliSeconds >= 290) {
                 console.log(seconds + 's:' + milliSeconds)
                 $done();
             }
