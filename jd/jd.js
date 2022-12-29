@@ -12,50 +12,72 @@ const url = $request.url;
 const $tool = tool();
 
 const isRequest = !$tool.isResponse
-
+const functionId = getReqFunctionId()
 if (isRequest) {
-    if (getReqFunctionId() == cartPath) {
+    if (functionId == cartPath) {
         sleep(500)
         $done();
     }
-    if (getReqFunctionId() == submitOrderPath) {
+    /* cart 接口响应时间，4G：150-170ms， wifi： 90-120
+     4G
+     success: 1:00, 00:500, 00:200, 0:00(2)
+     failed: 59:800, 59:900, 59:950
+    *******************************************************
+     WIFI 下单到付款2s
+     success: 00:500
+     failed: 59:980, 00:00
+    */
+    if (functionId == submitOrderPath) {
         console.log("提交订单Request")
         while (true) {
             let dd = new Date()
             let seconds = dd.getSeconds()
             let milliSeconds = dd.getMilliseconds()
-            if ((seconds == 59 || seconds <= 5) && milliSeconds >= 700) {
+            if (seconds == 0 && milliSeconds >= 500) {
+                console.log(seconds + 's:' + milliSeconds)
                 $done();
             }
-            sleep(5)
-        } 
+        }
     }
+    // if (functionId == 'platJDPayAcc') {
+    //     console.log("提交支付Request")
+    //     console.log(currentDate())
+    //     while (true) {
+    //         let dd = new Date()
+    //         let seconds = dd.getSeconds()
+    //         let milliSeconds = dd.getMilliseconds()
+    //         if ((seconds >= 10 && seconds <= 20) && milliSeconds >= 500) {
+    //             console.log("提交订单时间：" + currentDate())
+    //             $done();
+    //         }
+    //         sleep(5)
+    //     } 
+    // }
     $done();
 }
 
 if (!isRequest) {
     const body = $response.body;
-    if (getReqFunctionId() == msgEntranceV710Path) {
+    if (functionId == msgEntranceV710Path) {
         // sleep(5000) 
         let obj = JSON.parse(body);
         console.log(msgEntranceV710Path + " rewrite:" +  JSON.stringify(obj))
         $done({ body: JSON.stringify(obj) });
     }
 
-    if (getReqFunctionId() == cartPath) {
+    if (functionId == cartPath) {
         let obj = JSON.parse(body);
         if (obj["cartInfo"] && obj["cartInfo"]["vendors"]) {
-            obj["cartInfo"]["vendors"][0].shopName = obj["cartInfo"]["vendors"][0].shopName + currentDate()
+            obj["cartInfo"]["vendors"][0].shopName = currentDate() + "_" + obj["cartInfo"]["vendors"][0].shopName
         }
         console.log(cartPath + " rewrite:" +  JSON.stringify(obj))
         $done({ body: JSON.stringify(obj) });
     }
     
     
-    if (getReqFunctionId() == serverConfigPath) {
-        console.log(currentDate())
-        console.log(serverConfigPath + ":" +  body)
-        // sleep(10000)
+    if (functionId == serverConfigPath) {
+        // console.log(currentDate())
+        // console.log(serverConfigPath + ":" +  body)
         let obj = JSON.parse(body);
         delete obj.serverConfig.httpdns;
         delete obj.serverConfig.dnsvip;
@@ -63,9 +85,8 @@ if (!isRequest) {
         $done({ body: JSON.stringify(obj) });
     }
     
-    if (getReqFunctionId() == basicConfigPath) {
-        console.log(basicConfigPath + ":" +  body)
-        // sleep(5000)
+    if (functionId == basicConfigPath) {
+        // console.log(basicConfigPath + ":" +  body)
         let obj = JSON.parse(body);
         let JDHttpToolKit = obj.data.JDHttpToolKit;
         if (JDHttpToolKit) {
@@ -74,6 +95,7 @@ if (!isRequest) {
         }
         $done({ body: JSON.stringify(obj) });
     }
+    $done();
 }
 
 function getReqFunctionId() {
