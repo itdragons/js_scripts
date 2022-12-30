@@ -1,20 +1,13 @@
-/*
-README：https://github.com/yichahucha/surge/tree/master
- */
-
-const serverConfigPath = "serverConfig";
-const wareBusinessPath = "wareBusiness";
-const basicConfigPath = "basicConfig";
-const cartPath = "cart"
-const submitOrderPath = "submitOrder"
-const msgEntranceV710Path = "msgEntranceV710"
-const url = $request.url;
 const $tool = tool();
-
-const isRequest = !$tool.isResponse
+const reqUrl = getReqUrl();
 const functionId = getReqFunctionId()
-if (isRequest) {
-    if (functionId == cartPath) {
+const jdCookieKey = "jdCookie"
+const jdServerConfigReqBodyKey = 'jdServerConfigReqBody'
+
+// 请求
+if ($tool.isRequest) {
+
+    if (functionId == "cart") {
         console.log(currentDate())
         sleep(500)
         $done();
@@ -27,7 +20,7 @@ if (isRequest) {
      WIFI 下单到付款2s
      00:500(1), 00:350(6,-3), 00:300(3,-1), 00:290(4,-2), 00:250(,-1), 00:200(2,-2), 00:150(1,-3), 00:120(2,-1), 00:100(5,-2), 00:80(1,-1), 00:50(,-1)
     */
-    if (functionId == submitOrderPath) {
+    if (functionId == "submitOrder") {
         console.log("提交订单Request")
         while (true) {
             let dd = new Date()
@@ -40,45 +33,31 @@ if (isRequest) {
         }
     }
     // if (functionId == 'platJDPayAcc') {
-    //     console.log("提交支付Request")
+    //     console.log("进入支付页面 Request")
     //     console.log(currentDate())
-    //     while (true) {
-    //         let dd = new Date()
-    //         let seconds = dd.getSeconds()
-    //         let milliSeconds = dd.getMilliseconds()
-    //         if ((seconds >= 10 && seconds <= 20) && milliSeconds >= 500) {
-    //             console.log("提交订单时间：" + currentDate())
-    //             $done();
-    //         }
-    //         sleep(5)
-    //     } 
     // }
-    if (functionId == serverConfigPath) {
-        $tool.notify("Jd ServerConfig", 'request', JSON.stringify($request));
+    if (functionId == "serverConfig") {
+        $tool.write($request.headers.Cookie, jdCookieKey)
+        $tool.write($request.body, jdServerConfigReqBodyKey)
     }
     $done();
 }
 
-if (!isRequest) {
+// 响应
+if ($tool.isResponse) {
     const body = $response.body;
-    if (functionId == msgEntranceV710Path) {
-        // sleep(5000) 
-        let obj = JSON.parse(body);
-        console.log(msgEntranceV710Path + " rewrite:" +  JSON.stringify(obj))
-        $done({ body: JSON.stringify(obj) });
-    }
 
-    if (functionId == cartPath) {
+    if (functionId == "cart") {
         let obj = JSON.parse(body);
         if (obj["cartInfo"] && obj["cartInfo"]["vendors"]) {
             obj["cartInfo"]["vendors"][0].shopName = currentDate() + "_" + obj["cartInfo"]["vendors"][0].shopName
         }
-        console.log(cartPath + " rewrite:" +  JSON.stringify(obj))
+        console.log("cart rewrite:" +  JSON.stringify(obj))
         $done({ body: JSON.stringify(obj) });
     }
     
     
-    if (functionId == serverConfigPath) {
+    if (functionId == "serverConfig") {
         let obj = JSON.parse(body);
         delete obj.serverConfig.httpdns;
         delete obj.serverConfig.dnsvip;
@@ -97,7 +76,7 @@ if (!isRequest) {
         $done({ body: JSON.stringify(obj) });
     }
     
-    if (functionId == basicConfigPath) {
+    if (functionId == "basicConfig") {
         // console.log(basicConfigPath + ":" +  body)
         let obj = JSON.parse(body);
         let JDHttpToolKit = obj.data.JDHttpToolKit;
@@ -114,8 +93,126 @@ if (!isRequest) {
     $done();
 }
 
+
+
+// run
+if ($tool.isRun) {
+    console.log("run: ")
+    printSupportPromise()
+    // let cookie = $tool.read(jdCookieKey)
+    // let serverConfigReqBody = $tool.read(jdServerConfigReqBodyKey)
+    // console.log(`cookie: ${cookie}`)
+    // console.log(`serverConfigReqBody: ${serverConfigReqBody}`)
+    let msg = "";
+    // request_serverConfig().then((data) => {
+    //     msg = data
+    // })
+    // .catch((error) => (msg = "获取失败"))
+    // .finally(() => {
+    //     console.log(msg)
+    //     $done();
+    // });
+    // const options = {
+    //     headers: {
+    //         "Content-Type": "application/json; charset=utf-8",
+    //         // "User-Agent": "JD4iPhone/11.4.0 CFNetwork/1402.0.8 Darwin/22.2.0",
+    //         "Cookie": $tool.read(jdCookieKey)
+    //     },
+    //     body: $tool.read(jdServerConfigReqBodyKey),
+    //     url: 'https://api.hnbmc.com/app/login'
+    //     // url: "https://api.m.jd.com/client.action?functionId=serverConfig"
+    // }
+    // options = {
+    //     headers: {},
+    //     url: 'https://api.hnbmc.com/app/login',
+    //     body: {
+    //         username: 'username',
+    //         password: '123'
+    //     }
+    // }
+    // console.log(`option: ${options}`)
+
+    // $tool.post(options, function (error, response, data) {
+    //     console.log(`response: ${response}`)
+    // })
+    submitUser(1)
+
+    // $done()
+}
+
+
+function submitUser(userId) {
+    let userInfo = {
+        "name": 'itdragons'
+    }
+    console.log('userInfo:' + JSON.stringify(userInfo))
+    fc_url = {
+        headers: {},
+        url: 'http://192.168.31.207:5000/apis/jcys/user/sync',
+        body: {
+            userId: userId
+        }
+    }
+    console.log("fc_url：" + fc_url.url)
+    return new Promise((resolve, reject) => {
+        $tool.post(fc_url, function (error, response, data) {
+            try {
+                console.log("同步响应：" + data)
+                if (error) {
+                    throw new Error(error)
+                }
+                return resolve(data)
+            } catch (eor) {
+                console.log("err!!!")
+            }
+        })
+    })
+}
+
+
+// async function request_serverConfig() {
+//     const options = {
+//         headers: {
+//             "Content-Type": "application/json; charset=utf-8",
+//             "User-Agent": "JD4iPhone/11.4.0 CFNetwork/1402.0.8 Darwin/22.2.0",
+//             "Cookie": $tool.read(jdCookieKey)
+//         },
+//         body: $tool.read(jdServerConfigReqBodyKey)
+//     };
+//     console.log(`option: ${options}`)
+//     const data = new Promise(function (resolve, reject) {
+//         options.url = "https://api.m.jd.com/client.action?functionId=serverConfig";
+//         $tool.post(options, function (error, response, data) {
+//             console.log(`response: ${response}`)
+//             if (!error) {
+//                 console.log(data)
+//                 resolve(JSON.parse(data));
+//             } else {
+//                 reject(error);
+//             }
+//         });
+//     });
+//     console.log("request finished!")
+//     let result = await data
+//     console.log("request_serverConfig data:" + result)
+//     return result;
+// }
+
+function printSupportPromise() {
+    'use strict';
+    new Promise(function () {});
+    console.log('支持Promise!');
+}
+
 function getReqFunctionId() {
     return getQueryString("functionId")
+}
+
+function getReqUrl() {
+    if ($request) {
+        return $request.url
+    }
+    return ""
 }
 
 
@@ -129,8 +226,8 @@ function getQueryString(name) {
 }
 
 function getReqParamsString() {
-    if (url.split('?').length > 1) {
-        return '?' + url.split('?')[1]
+    if (reqUrl.split('?').length > 1) {
+        return '?' + reqUrl.split('?')[1]
     }
     return ""
 }
@@ -144,115 +241,10 @@ function dateFormat(dd) {
     return dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds() + "." + dd.getMilliseconds()
 }
 
-// if (url.indexOf(wareBusinessPath) != -1) {
-//     console.log(wareBusinessPath + ":" +  body)
-//     $done()
-// }
 
 function sleep(delay) {
     console.log("sleep: " + delay)
     for (var t = Date.now(); Date.now() - t <= delay;);
-}
-
-function priceSummary(data) {
-    let summary = `🌨 当前: ${data.CurrentPrice}${getSpace(8)}最低: ${data.LowestPrice} (${data.LowestDate})`;
-    console.log(summary)
-    const list = historySummary(data.PricesHistory);
-    list.forEach((item, index) => {
-        summary += `\n${item.Name}${getSpace(8)}${item.Price}${getSpace(8)}${item.Date}${getSpace(8)}${item.Difference}`;
-    });
-    return summary;
-}
-
-function historySummary(list) {
-    let currentPrice, lowest30, lowest90, lowest180, lowest360, price11, price618;
-    list = list.reverse().slice(0, 360);
-    list.forEach((item, index) => {
-        const date = item.Date;
-        let price = item.Price;
-        if (index == 0) {
-            currentPrice = price;
-            price618 = {
-                Name: "六一八价格",
-                Price: "-",
-                Date: "-",
-                Difference: "-",
-                price: "-",
-            };
-            price11 = {
-                Name: "双十一价格",
-                Price: "-",
-                Date: "-",
-                Difference: "-",
-                price: "-",
-            };
-            lowest30 = {
-                Name: "三十天最低",
-                Price: `¥${String(price)}`,
-                Date: date,
-                Difference: difference(currentPrice, price),
-                price,
-            };
-            lowest90 = {
-                Name: "九十天最低",
-                Price: `¥${String(price)}`,
-                Date: date,
-                Difference: difference(currentPrice, price),
-                price,
-            };
-            lowest180 = {
-                Name: "一百八最低",
-                Price: `¥${String(price)}`,
-                Date: date,
-                Difference: difference(currentPrice, price),
-                price,
-            };
-            lowest360 = {
-                Name: "三百六最低",
-                Price: `¥${String(price)}`,
-                Date: date,
-                Difference: difference(currentPrice, price),
-                price,
-            };
-        }
-        if (date.indexOf("06-18") != -1) {
-            price618.price = price;
-            price618.Price = `¥${String(price)}`;
-            price618.Date = date;
-            price618.Difference = difference(currentPrice, price);
-        }
-        if (date.indexOf("11-11") != -1) {
-            price11.price = price;
-            price11.Price = `¥${String(price)}`;
-            price11.Date = date;
-            price11.Difference = difference(currentPrice, price);
-        }
-        if (index < 30 && price < lowest30.price) {
-            lowest30.price = price;
-            lowest30.Price = `¥${String(price)}`;
-            lowest30.Date = date;
-            lowest30.Difference = difference(currentPrice, price);
-        }
-        if (index < 90 && price < lowest90.price) {
-            lowest90.price = price;
-            lowest90.Price = `¥${String(price)}`;
-            lowest90.Date = date;
-            lowest90.Difference = difference(currentPrice, price);
-        }
-        if (index < 180 && price < lowest180.price) {
-            lowest180.price = price;
-            lowest180.Price = `¥${String(price)}`;
-            lowest180.Date = date;
-            lowest180.Difference = difference(currentPrice, price);
-        }
-        if (index < 360 && price < lowest360.price) {
-            lowest360.price = price;
-            lowest360.Price = `¥${String(price)}`;
-            lowest360.Date = date;
-            lowest360.Difference = difference(currentPrice, price);
-        }
-    });
-    return [lowest30, lowest90, lowest180, lowest360, price618, price11];
 }
 
 async function request_history_price(share_url) {
@@ -276,80 +268,17 @@ async function request_history_price(share_url) {
     return priceTrendData;
 }
 
-function getExactTime(time) {
-    var date = new Date(time * 1000);
-    var year = date.getFullYear() + "-";
-    var month =
-        (date.getMonth() + 1 < 10
-            ? "0" + (date.getMonth() + 1)
-            : date.getMonth() + 1) + "-";
-    var dates = date.getDate();
-    return year + month + dates;
-}
 
-function difference(currentPrice, price) {
-    let difference = sub(currentPrice, price);
-    if (difference == 0) {
-        return "-";
-    } else {
-        return `${difference > 0 ? "↑" : "↓"}${String(Math.abs(difference))}`;
-    }
-}
-
-function sub(arg1, arg2) {
-    return add(arg1, -Number(arg2), arguments[2]);
-}
-
-function add(arg1, arg2) {
-    (arg1 = arg1.toString()), (arg2 = arg2.toString());
-    var arg1Arr = arg1.split("."),
-        arg2Arr = arg2.split("."),
-        d1 = arg1Arr.length == 2 ? arg1Arr[1] : "",
-        d2 = arg2Arr.length == 2 ? arg2Arr[1] : "";
-    var maxLen = Math.max(d1.length, d2.length);
-    var m = Math.pow(10, maxLen);
-    var result = Number(((arg1 * m + arg2 * m) / m).toFixed(maxLen));
-    var d = arguments[2];
-    return typeof d === "number" ? Number(result.toFixed(d)) : result;
-}
-
-function getSpace(length) {
-    let blank = "";
-    for (let index = 0; index < length; index++) {
-        blank += " ";
-    }
-    return blank;
-}
-
-function adword_obj() {
-    return {
-        bId: "eCustom_flo_199",
-        cf: {
-            bgc: "#ffffff",
-            spl: "empty",
-        },
-        data: {
-            ad: {
-                adword: "",
-                textColor: "#8C8C8C",
-                color: "#f23030",
-                newALContent: true,
-                hasFold: true,
-                class: "com.jd.app.server.warecoresoa.domain.AdWordInfo.AdWordInfo",
-                adLinkContent: "",
-                adLink: "",
-            },
-        },
-        mId: "bpAdword",
-        refId: "eAdword_0000000028",
-        sortId: 13,
-    };
-}
+Array.prototype.insert = function (index, item) {
+    this.splice(index, 0, item);
+};
 
 function tool() {
     const isSurge = typeof $httpClient != "undefined";
     const isQuanX = typeof $task != "undefined";
     const isResponse = typeof $response != "undefined";
+    const isRequest = !isResponse && typeof $request != "undefined";
+    const isRun = !isRequest && !isResponse
     const node = (() => {
         if (typeof require == "function") {
             const request = require("request");
@@ -424,44 +353,5 @@ function tool() {
             });
         }
     };
-    return { isQuanX, isSurge, isResponse, notify, write, read, get, post };
+    return { isQuanX, isSurge, isRequest, isResponse, isRun, notify, write, read, get, post };
 }
-
-Array.prototype.insert = function (index, item) {
-    this.splice(index, 0, item);
-};
-
-Date.prototype.format = function (fmt) {
-    var o = {
-        "y+": this.getFullYear(),
-        "M+": this.getMonth() + 1,
-        "d+": this.getDate(),
-        "h+": this.getHours(),
-        "m+": this.getMinutes(),
-        "s+": this.getSeconds(),
-        "q+": Math.floor((this.getMonth() + 3) / 3),
-        "S+": this.getMilliseconds(),
-    };
-    for (var k in o) {
-        if (new RegExp("(" + k + ")").test(fmt)) {
-            if (k == "y+") {
-                fmt = fmt.replace(RegExp.$1, ("" + o[k]).substr(4 - RegExp.$1.length));
-            } else if (k == "S+") {
-                var lens = RegExp.$1.length;
-                lens = lens == 1 ? 3 : lens;
-                fmt = fmt.replace(
-                    RegExp.$1,
-                    ("00" + o[k]).substr(("" + o[k]).length - 1, lens)
-                );
-            } else {
-                fmt = fmt.replace(
-                    RegExp.$1,
-                    RegExp.$1.length == 1
-                        ? o[k]
-                        : ("00" + o[k]).substr(("" + o[k]).length)
-                );
-            }
-        }
-    }
-    return fmt;
-};
