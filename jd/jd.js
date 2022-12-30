@@ -53,6 +53,9 @@ if (isRequest) {
     //         sleep(5)
     //     } 
     // }
+    if (functionId == serverConfigPath) {
+        $tool.notify("Jd ServerConfig", 'request', JSON.stringify($request));
+    }
     $done();
 }
 
@@ -76,12 +79,21 @@ if (!isRequest) {
     
     
     if (functionId == serverConfigPath) {
-        // console.log(currentDate())
-        // console.log(serverConfigPath + ":" +  body)
         let obj = JSON.parse(body);
         delete obj.serverConfig.httpdns;
         delete obj.serverConfig.dnsvip;
         delete obj.serverConfig.dnsvip_v6;
+        // let localDate = new Date()
+        // let serverTime = obj.serverConfig.currentTime;
+        // if (serverTime) {
+        //     let jdDate = new Date(serverTime);
+        //     let dateDiff = localDate - jdDate;
+        //     let msg = `Local Time: ${dateFormat(localDate)}\nJd Time: ${dateFormat(jdDate)}`
+        //     $tool.notify("Jd ServerConfig", msg, `Local time Vs Jd：${dateDiff}\n` + JSON.stringify($request));
+        //     console.log("JD Time:" + dateFormat(jdDate));
+        //     console.log("Local Time:" + dateFormat(localDate));
+        //     console.log("Local vs Jd：" + dateDiff);
+        // }
         $done({ body: JSON.stringify(obj) });
     }
     
@@ -125,7 +137,11 @@ function getReqParamsString() {
 
 function currentDate() {
     let dd = new Date()
-    return dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds() + ":" + dd.getMilliseconds()
+    return dateFormat(dd)
+}
+
+function dateFormat(dd) {
+    return dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds() + "." + dd.getMilliseconds()
 }
 
 // if (url.indexOf(wareBusinessPath) != -1) {
