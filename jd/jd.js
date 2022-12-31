@@ -101,17 +101,43 @@ if ($tool.isResponse) {
 }
 
 
-
 // run
 if ($tool.isRun) {
-    console.log("run: ")
-    request_serverConfig().then(data => {
-        console.log(`currentTime: ${data.serverConfig.currentTime}`)
-        $done()
-    }).catch(err => {
-        console.log(`err: ${err}`)
+    console.log("script run: ")
+    showJdServerTime().then(() => {
         $done()
     })
+}
+
+async function showJdServerTime() {
+    let runCount = 5
+    let costSum = 0
+    let delaySum = 0
+    await request_serverConfig().then(async () => {
+        await sleep(1000)
+    })
+    for (var i=0; i<runCount; i++) {
+        let reqDate = new Date();
+        console.log(`\n第${i + 1}次请求：ServerConfig`)
+        console.log(`请求时间: ${dateFormat(reqDate)}`)
+        request_serverConfig().then(data => {
+            let respDate = new Date()
+            let cost = respDate - reqDate
+            console.log(`响应时间: ${dateFormat(respDate)}, 耗时：${cost}s`)
+            let jdTime = new Date(data.serverConfig.currentTime)
+            let delay = reqDate - jdTime
+            console.log(`JD时间: ${dateFormat(jdTime)}`)
+            console.log(`时间延迟: ${delay}`)
+            costSum += cost
+            delaySum += delay
+        }).catch(err => {
+            console.log(`err: ${err}`)
+        })
+        await sleep(1000)
+    }
+
+    console.log(`\n\n平均响应耗时：${costSum / runCount}`)
+    console.log(`平均时间延迟：${delaySum / runCount}`)
 }
 
 
