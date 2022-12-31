@@ -105,7 +105,7 @@ if ($tool.isResponse) {
     else if (functionId == 'submitOrder') {
         let obj = JSON.parse(body);
         if (obj.inputPassword) {
-            $tool.notify("jd", '订单创建失败', '》》需输入密码验证虚拟资产《《');
+            $tool.notify("jd", '订单创建失败', `《需输入密码验证虚拟资产》\nbody: ${formatRespData(body)}`);
             $done($response);
         }
         let currentTime = new Date()
@@ -204,6 +204,10 @@ function printSupportPromise() {
     'use strict';
     new Promise(function () {});
     console.log('支持Promise!');
+}
+
+function formatRespData(body) {
+    return JSON.stringify(JSON.parse(body), null, "\t")
 }
 
 function getReqFunctionId() {
