@@ -9,8 +9,10 @@ if ($tool.isRequest) {
 
     if (functionId == "cart") {
         console.log(currentDate())
-        sleep(500)
-        $done();
+        sleep(200).then(() => {
+            console.log(currentDate())
+            $done();
+        })
     }
     /* cart 接口响应时间，4G：150-170ms， wifi： 90-120
      4G
@@ -22,15 +24,20 @@ if ($tool.isRequest) {
     */
     if (functionId == "submitOrder") {
         console.log("提交订单Request")
-        while (true) {
-            let dd = new Date()
-            let seconds = dd.getSeconds()
-            let milliSeconds = dd.getMilliseconds()
-            if (seconds == 0 && milliSeconds >= 365) {
-                console.log(seconds + 's:' + milliSeconds)
-                $done();
+        (async function() {
+            while (true) {
+                let dd = new Date()
+                let seconds = dd.getSeconds()
+                let milliSeconds = dd.getMilliseconds()
+                if (seconds == 0 && milliSeconds >= 365) {
+                    console.log(seconds + 's:' + milliSeconds)
+                    break
+                }
+                await sleep(1);
             }
-        }
+            $done()
+        })();
+        
     }
     // if (functionId == 'platJDPayAcc') {
     //     console.log("进入支付页面 Request")
@@ -39,8 +46,8 @@ if ($tool.isRequest) {
     if (functionId == "serverConfig") {
         $tool.write($request.headers.Cookie, jdCookieKey)
         $tool.write($request.body, jdServerConfigReqBodyKey)
+        $done();
     }
-    $done();
 }
 
 // 响应
@@ -98,105 +105,38 @@ if ($tool.isResponse) {
 // run
 if ($tool.isRun) {
     console.log("run: ")
-    printSupportPromise()
-    // let cookie = $tool.read(jdCookieKey)
-    // let serverConfigReqBody = $tool.read(jdServerConfigReqBodyKey)
-    // console.log(`cookie: ${cookie}`)
-    // console.log(`serverConfigReqBody: ${serverConfigReqBody}`)
-    let msg = "";
-    // request_serverConfig().then((data) => {
-    //     msg = data
-    // })
-    // .catch((error) => (msg = "获取失败"))
-    // .finally(() => {
-    //     console.log(msg)
-    //     $done();
-    // });
-    // const options = {
-    //     headers: {
-    //         "Content-Type": "application/json; charset=utf-8",
-    //         // "User-Agent": "JD4iPhone/11.4.0 CFNetwork/1402.0.8 Darwin/22.2.0",
-    //         "Cookie": $tool.read(jdCookieKey)
-    //     },
-    //     body: $tool.read(jdServerConfigReqBodyKey),
-    //     url: 'https://api.hnbmc.com/app/login'
-    //     // url: "https://api.m.jd.com/client.action?functionId=serverConfig"
-    // }
-    // options = {
-    //     headers: {},
-    //     url: 'https://api.hnbmc.com/app/login',
-    //     body: {
-    //         username: 'username',
-    //         password: '123'
-    //     }
-    // }
-    // console.log(`option: ${options}`)
-
-    // $tool.post(options, function (error, response, data) {
-    //     console.log(`response: ${response}`)
-    // })
-    submitUser(1)
-
-    // $done()
-}
-
-
-function submitUser(userId) {
-    let userInfo = {
-        "name": 'itdragons'
-    }
-    console.log('userInfo:' + JSON.stringify(userInfo))
-    fc_url = {
-        headers: {},
-        url: 'http://192.168.31.207:5000/apis/jcys/user/sync',
-        body: {
-            userId: userId
-        }
-    }
-    console.log("fc_url：" + fc_url.url)
-    return new Promise((resolve, reject) => {
-        $tool.post(fc_url, function (error, response, data) {
-            try {
-                console.log("同步响应：" + data)
-                if (error) {
-                    throw new Error(error)
-                }
-                return resolve(data)
-            } catch (eor) {
-                console.log("err!!!")
-            }
-        })
+    request_serverConfig().then(data => {
+        console.log(`currentTime: ${data.serverConfig.currentTime}`)
+        $done()
+    }).catch(err => {
+        console.log(`err: ${err}`)
+        $done()
     })
 }
 
 
-// async function request_serverConfig() {
-//     const options = {
-//         headers: {
-//             "Content-Type": "application/json; charset=utf-8",
-//             "User-Agent": "JD4iPhone/11.4.0 CFNetwork/1402.0.8 Darwin/22.2.0",
-//             "Cookie": $tool.read(jdCookieKey)
-//         },
-//         body: $tool.read(jdServerConfigReqBodyKey)
-//     };
-//     console.log(`option: ${options}`)
-//     const data = new Promise(function (resolve, reject) {
-//         options.url = "https://api.m.jd.com/client.action?functionId=serverConfig";
-//         $tool.post(options, function (error, response, data) {
-//             console.log(`response: ${response}`)
-//             if (!error) {
-//                 console.log(data)
-//                 resolve(JSON.parse(data));
-//             } else {
-//                 reject(error);
-//             }
-//         });
-//     });
-//     console.log("request finished!")
-//     let result = await data
-//     console.log("request_serverConfig data:" + result)
-//     return result;
-// }
+
+
+async function request_serverConfig() {
+    const options = {
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "JD4iPhone/11.4.0 CFNetwork/1402.0.8 Darwin/22.2.0",
+            "Cookie": $tool.read(jdCookieKey)
+        },
+        body: $tool.read(jdServerConfigReqBodyKey)
+    };
+    return new Promise(function (resolve, reject) {
+        options.url = "https://api.m.jd.com/client.action?functionId=serverConfig";
+        $tool.post(options, function (error, response, data) {
+            if (!error) {
+                resolve(JSON.parse(data));
+            } else {
+                reject(error);
+            }
+        });
+    });
+}
 
 function printSupportPromise() {
     'use strict';
@@ -242,9 +182,9 @@ function dateFormat(dd) {
 }
 
 
-function sleep(delay) {
-    console.log("sleep: " + delay)
-    for (var t = Date.now(); Date.now() - t <= delay;);
+
+function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 async function request_history_price(share_url) {
