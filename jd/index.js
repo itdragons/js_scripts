@@ -51,7 +51,6 @@ if (true) {
     //     console.log("done!")
     // }) 
 
-    // 51068249
     // get_sleep_count().then(data => {
     //     console.log(data)
     //     console.log("done!!!")
@@ -62,6 +61,7 @@ if (true) {
         await sleep(3000);
         console.log('Do other things, ' + new Date());
     })();
+
       
     // console.log(n)
     // console.log("done!!!")

@@ -1,14 +1,22 @@
 const $tool = tool();
 const reqUrl = getReqUrl();
 const functionId = getReqFunctionId()
+// key
 const jdCookieKey = "jdCookie"
 const jdServerConfigReqBodyKey = 'jdServerConfigReqBody'
+const jdAvgRespCostKey = 'jdAvgRespCost'  
+const jdAvgDelayKey = 'jdAvgDelay'
+const jdSubmitOrderTimeKey = 'jdSubmitOrderTime'
+// config
+const payTimeSeconds = 3
+const payTimeMilliSeconds = 500
+const enableDelaySubmit = true
 
 // 请求
 if ($tool.isRequest) {
 
     if (functionId == "cart") {
-        console.log(currentDate())
+        $tool.notify("jd", `加载购物车: ${dateFormat(new Date())}`);
         sleep(200).then(() => {
             console.log(currentDate())
             $done();
@@ -22,19 +30,19 @@ if ($tool.isRequest) {
      WIFI 下单到付款2s
      00:500(1), 00:350(6,-3), 00:300(3,-1), 00:290(4,-2), 00:250(,-1), 00:200(2,-2), 00:150(1,-3), 00:120(2,-1), 00:100(5,-2), 00:80(1,-1), 00:50(,-1)
     */
-    if (functionId == "submitOrder") {
-        console.log("提交订单Request")
+    else if (functionId == "submitOrder") {
+        $tool.notify("jd", `开始创建订单: ${dateFormat(new Date())}`);
         (async function() {
-            while (true) {
+            while (enableDelaySubmit) {
                 let dd = new Date()
                 let seconds = dd.getSeconds()
-                let milliSeconds = dd.getMilliseconds()
-                if (seconds == 0 && milliSeconds >= 365) {
-                    console.log(seconds + 's:' + milliSeconds)
+                if (seconds == 0) {
+                    console.log(`发送创建订单请求：${dateFormat(dd)}`)
                     break
                 }
                 await sleep(1);
             }
+            $tool.write(new Date().getTime().toString(), jdSubmitOrderTimeKey)
             $done()
         })();
         
@@ -42,11 +50,15 @@ if ($tool.isRequest) {
     // if (functionId == 'platJDPayAcc') {
     //     console.log("进入支付页面 Request")
     //     console.log(currentDate())
+    //     $done() 
     // }
-    if (functionId == "serverConfig") {
+    else if (functionId == "serverConfig") {
         $tool.write($request.headers.Cookie, jdCookieKey)
         $tool.write($request.body, jdServerConfigReqBodyKey)
-        $done();
+        $done()
+    }
+    else {
+        $done()
     }
 }
 
@@ -56,35 +68,26 @@ if ($tool.isResponse) {
 
     if (functionId == "cart") {
         let obj = JSON.parse(body);
-        if (obj["cartInfo"] && obj["cartInfo"]["vendors"]) {
-            obj["cartInfo"]["vendors"][0].shopName = currentDate() + "_" + obj["cartInfo"]["vendors"][0].shopName
+        let cartInfo = obj["cartInfo"] 
+        if (cartInfo && cartInfo["vendors"]) {
+            cartInfo["vendors"][0].shopName = `【${currentDate()}】${cartInfo["vendors"][0].shopName}`
+            console.log(`cart rewrite: ${cartInfo["vendors"][0].shopName}`)
         }
-        console.log("cart rewrite:" +  JSON.stringify(obj))
+
         $done({ body: JSON.stringify(obj) });
     }
     
     
-    if (functionId == "serverConfig") {
+    else if (functionId == "serverConfig") {
         let obj = JSON.parse(body);
         delete obj.serverConfig.httpdns;
         delete obj.serverConfig.dnsvip;
         delete obj.serverConfig.dnsvip_v6;
-        // let localDate = new Date()
-        // let serverTime = obj.serverConfig.currentTime;
-        // if (serverTime) {
-        //     let jdDate = new Date(serverTime);
-        //     let dateDiff = localDate - jdDate;
-        //     let msg = `Local Time: ${dateFormat(localDate)}\nJd Time: ${dateFormat(jdDate)}`
-        //     $tool.notify("Jd ServerConfig", msg, `Local time Vs Jd：${dateDiff}\n` + JSON.stringify($request));
-        //     console.log("JD Time:" + dateFormat(jdDate));
-        //     console.log("Local Time:" + dateFormat(localDate));
-        //     console.log("Local vs Jd：" + dateDiff);
-        // }
+        
         $done({ body: JSON.stringify(obj) });
     }
     
-    if (functionId == "basicConfig") {
-        // console.log(basicConfigPath + ":" +  body)
+    else if (functionId == "basicConfig") {
         let obj = JSON.parse(body);
         let JDHttpToolKit = obj.data.JDHttpToolKit;
         if (JDHttpToolKit) {
@@ -94,40 +97,73 @@ if ($tool.isResponse) {
         $done({ body: JSON.stringify(obj) });
     }
 
-    if (functionId == 'platPayResult') {
+    else if (functionId == 'platPayResult') {
         console.log('获取支付结果时间：' + currentDate())
+        $done($response);
     }
-    $done();
+
+    else if (functionId == 'submitOrder') {
+        let obj = JSON.parse(body);
+        if (obj.inputPassword) {
+            $tool.notify("jd", '订单创建失败', '》》需输入密码验证虚拟资产《《');
+            $done($response);
+        }
+        let currentTime = new Date()
+        let reqTime = new Date(parseInt($tool.read(jdSubmitOrderTimeKey)))
+        let avgRespCost = parseInt($tool.read(jdAvgRespCostKey))
+        let avgDelay = parseInt($tool.read(jdAvgDelayKey))
+        let cost = currentTime - reqTime
+        let msg = `响应耗时: ${cost}, 平均响应时长: ${avgRespCost}, 平均受理延迟: ${avgDelay}\n body:${body}`;
+        $tool.notify("jd", '订单创建成功', msg);
+        (async function() {
+            while (true) {
+                let currentTime_ = new Date()
+                let seconds = currentTime_.getSeconds()
+                let milliseconds = currentTime_.getMilliseconds()
+                if ((seconds == payTimeSeconds && milliseconds >= payTimeMilliSeconds) || seconds > payTimeSeconds) {
+                    break
+                }
+                await sleep(1);
+            }
+            $done($response);
+        })();
+    }
+
+    else {
+        $done($response);
+    }
 }
 
 
 // run
 if ($tool.isRun) {
     console.log("script run: ")
+    
     showJdServerTime().then(() => {
         $done()
     })
+
 }
 
 async function showJdServerTime() {
     let runCount = 5
     let costSum = 0
     let delaySum = 0
-    await request_serverConfig().then(async () => {
+    await requestServerConfig().then(async () => {
         await sleep(1000)
     })
     for (var i=0; i<runCount; i++) {
         let reqDate = new Date();
         console.log(`\n第${i + 1}次请求：ServerConfig`)
         console.log(`请求时间: ${dateFormat(reqDate)}`)
-        request_serverConfig().then(data => {
+        requestServerConfig().then(data => {
             let respDate = new Date()
             let cost = respDate - reqDate
             console.log(`响应时间: ${dateFormat(respDate)}, 耗时：${cost}s`)
             let jdTime = new Date(data.serverConfig.currentTime)
-            let delay = reqDate - jdTime
+            let delay = jdTime - reqDate
             console.log(`JD时间: ${dateFormat(jdTime)}`)
-            console.log(`时间延迟: ${delay}`)
+            console.log(`请求受理延迟: ${delay}`)
             costSum += cost
             delaySum += delay
         }).catch(err => {
@@ -135,15 +171,15 @@ async function showJdServerTime() {
         })
         await sleep(1000)
     }
-
-    console.log(`\n\n平均响应耗时：${costSum / runCount}`)
-    console.log(`平均时间延迟：${delaySum / runCount}`)
+    let avgResp = costSum / runCount 
+    let avgDelay = delaySum / runCount
+    $tool.write(avgResp.toString(), jdAvgRespCostKey)
+    $tool.write(avgDelay.toString(), jdAvgDelayKey)
+    console.log(`\n\n平均响应时长：${avgResp}ms`)
+    console.log(`请求受理平均延迟：${avgDelay}ms 【发送请求的本机时间 到达 服务端受理的时间延迟】`)
 }
 
-
-
-
-async function request_serverConfig() {
+async function requestServerConfig() {
     const options = {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -207,31 +243,8 @@ function dateFormat(dd) {
     return dd.getHours() + ':' + dd.getMinutes() + ':' + dd.getSeconds() + "." + dd.getMilliseconds()
 }
 
-
-
 function sleep (time) {
     return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-async function request_history_price(share_url) {
-    const options = {
-        headers: {
-            "Content-Type": "application/json; charset=utf-8",
-        },
-    };
-
-    const priceTrend = new Promise(function (resolve, reject) {
-        options.url = "https://price.icharle.com/?product_id=" + share_url;
-        $tool.get(options, function (error, response, data) {
-            if (!error) {
-                resolve(JSON.parse(data));
-            } else {
-                reject(error);
-            }
-        });
-    });
-    const priceTrendData = await priceTrend;
-    return priceTrendData;
 }
 
 
