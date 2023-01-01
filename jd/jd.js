@@ -9,15 +9,17 @@ const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 // config
 const firstSubmitOrderTime = [0, 0]
-const noPwdSubmitOrderTime = [1, 500]
+const noPwdSubmitOrderTime = [1, 0]
 const payStartTime = [3, 500]
-const enableDelaySubmit = true
+const enableSafeMode = true // 如果账号需要验证虚拟资产，该值需要修改为true
 
 // 请求
 if ($tool.isRequest) {
 
     if (functionId == "cart") {
-        $tool.notify(`JD加载购物车: ${dateFormat(new Date())}`);
+        let subTitle = `虚拟资产密码验证: ${enableSafeMode}`
+        let msg = enableSafeMode ? "注意：必须在0秒前完成虚拟资产密码验证" : ""
+        $tool.notify(`JD加载购物车: ${dateFormat(new Date())}`, subTitle, msg);
         sleep(200).then(() => {
             console.log(currentDate())
             initSubmitOrderRecord()
@@ -111,22 +113,30 @@ async function reqSubmitOrderHandler() {
     let orders = readJson(jdSubmitOrderRecordKey).orders
     let submitOrderCount = orders.length
     let delayMs = 0
-    let msg = ''
     let delayDate = new Date()
-    if (enableDelaySubmit) {
-        if (submitOrderCount == 0) {
+    let msg = ''
+    if (submitOrderCount == 0) {
+        // 如果启用虚拟资产验证，则首次提交订单不需要延迟提交
+        if (!enableSafeMode) {
             let [date_, ms_] = getNextMinuteDate(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
             delayMs = ms_;
             delayDate = date_;
-            msg = `【首次创建订单】`
         }
-        else if(includeInputPasswordOrder(orders)) {
-            writePasswordVerified()
+        msg = `【首次创建订单】`
+    }
+    else if(includeInputPasswordOrder(orders)) {
+        writePasswordVerified()
+        // 如果启用虚拟资产验证，虚拟资产密码验证需要在0秒前完成
+        if (enableSafeMode) {
+            let [date_, ms_] = getNextMinuteDate(noPwdSubmitOrderTime[0], noPwdSubmitOrderTime[1])
+            delayMs = ms_;
+            delayDate = date_;
+        } else {
             let [date_, ms_] = getCurrentMinuteDate(noPwdSubmitOrderTime[0], noPwdSubmitOrderTime[1])
             delayMs = ms_;
             delayDate = date_;
-            msg = `【已验证虚拟资产，本次创建订单不需要支付密码】`
         }
+        msg = `【已验证虚拟资产，本次创建订单不需要支付密码】`
     }
     notify("创建订单请求", `开始创建订单[${submitOrderCount + 1}]`, `${msg}, 将在 ${delayMs}ms [${dateFormat(delayDate)}]后发送请求.`)
     await sleep(delayMs);
