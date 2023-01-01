@@ -7,6 +7,7 @@ const jdServerConfigReqBodyKey = 'jdServerConfigReqBody'
 const jdAvgRespCostKey = 'jdAvgRespCost'  
 const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderTimeKey = 'jdSubmitOrderTime'
+const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 // config
 const payTimeSeconds = 3
 const payTimeMilliSeconds = 500
@@ -52,11 +53,7 @@ if ($tool.isRequest) {
     //     console.log(currentDate())
     //     $done() 
     // }
-    else if (functionId == "serverConfig") {
-        $tool.write($request.headers.Cookie, jdCookieKey)
-        $tool.write($request.body, jdServerConfigReqBodyKey)
-        $done()
-    }
+
     else {
         $done()
     }
@@ -250,7 +247,6 @@ function dateFormat(dd) {
 function sleep (time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
-
 
 Array.prototype.insert = function (index, item) {
     this.splice(index, 0, item);

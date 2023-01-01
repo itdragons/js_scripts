@@ -1,0 +1,22 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="common.js"></script>
+    <!-- <script type="text/javascript" src="promise.js"></script> -->
+    <script type="text/javascript" src="jdMock.js"></script>
+</head>
+
+<body>
+    购物车：<br />
+    <button onclick='reqRoute("cart")'>购物车</button><br />
+    订单：<br />
+    <button onclick='reqRoute("submitOrder")'>创建订单</button><br />
+    <button onclick='responseRoute("submitOrder", {inputPassword: true})'>响应-创建订单(虚拟资产验证)</button>
+    <button onclick='responseRoute("submitOrder", {})'>响应-创建订单</button>
+
+
+    <br /><br /><button onclick='test()'>Test</button>
+</body>
+
+</html>

@@ -39,22 +39,18 @@ async function get_sleep_count() {
     return n;
 }
 
+Array.prototype.insert = function (index, item) {
+    this.splice(index, 0, item);
+};
+
+
+
 if (true) {
 
     // const bar = async () => {
     //     t = await test()
     //     return t
     // }
-
-    // bar().then(data => {
-    //     console.log(data)
-    //     console.log("done!")
-    // }) 
-
-    // get_sleep_count().then(data => {
-    //     console.log(data)
-    //     console.log("done!!!")
-    // })
     
     (async function() {
         console.log('Do some thing, ' + new Date());
@@ -62,10 +58,7 @@ if (true) {
         console.log('Do other things, ' + new Date());
     })();
 
-      
-    // console.log(n)
-    // console.log("done!!!")
-    
 }
+
 
 
