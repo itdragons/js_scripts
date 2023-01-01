@@ -4,9 +4,9 @@ const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 
 // config
-const submitOrderSeconds = new Date().getSeconds() + 2;
-const payTimeSeconds = new Date().getSeconds() + 2;
-const payTimeMilliSeconds = 500
+const firstSubmitOrderTime = [0, 0];
+const noPwdSubmitOrderTime = [1, 500]
+const payStartTime = [3, 500]
 const enableDelaySubmit = true
 
 let $response = {}
@@ -109,18 +109,21 @@ async function reqSubmitOrderHandler() {
     let orders = readJson(jdSubmitOrderRecordKey).orders
     let submitOrderCount = orders.length
     let delayMs = 0
+    let msg = ''
     if (enableDelaySubmit) {
         if (submitOrderCount == 0) {
-            delayMs = getMsFromNextMinute(0, 0)
+            delayMs = getMsFromNextMinute(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
+            msg = `【首次创建订单】`
         }
         else if(includeInputPasswordOrder(orders)) {
-            // 已验证虚拟资产，该请求会创建订单并支持，需要延迟提交
             writePasswordVerified()
-            console.log("已验证虚拟资产，该请求会创建订单并支持，需要延迟提交")
+            delayMs = getMsFromCurrentMinute(noPwdSubmitOrderTime[0], noPwdSubmitOrderTime[1])
+            msg = `【已验证虚拟资产，本次创建订单不再需要支付密码】`
         }
     }
-    $tool.notify("jd", `开始创建订单[${submitOrderCount + 1}]: ${dateFormat(new Date())}`, `将延迟 ${delayMs}ms 发送请求`);
+    $tool.notify("jd", `开始创建订单[${submitOrderCount + 1}]: ${dateFormat(new Date())}`, ` ${msg}, 将在 ${delayMs}ms 后发送请求.`);
     await sleep(delayMs);
+    console.log(`开始创建订单：${dateFormat(new Date())}`)
     writeSubmitOrderRecord()
     $done()
 }
@@ -128,20 +131,21 @@ async function reqSubmitOrderHandler() {
 
 async function respSubmitOrderHandler(body) {
     let order = writeSubmitOrderResp()
-    let msg = `响应耗时: ${order["cost"]}, 平均响应时长: ${readAvgRespCost()}, 平均受理延迟: ${readAvgDelay()}\n body:${body}`;
+    let msg = `响应耗时: ${order["cost"]}, 平均响应时长: ${readAvgRespCost()}, 平均受理延迟: ${readAvgDelay()}\n`;
     let obj = JSON.parse(body);
     if (obj.inputPassword) {
-        $tool.notify("jd", '订单创建失败', `《需输入密码验证虚拟资产》\n${msg}`);
+        $tool.notify("jd", `订单创建失败: ${dateFormat(new Date())}`, `《需输入密码验证虚拟资产》\n${msg} \ndata: ${body}`);
         writeInputPasswordInOrderRecord()
         $done($response);
     } else {
-        $tool.notify("jd", '订单创建成功', msg);
         let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
-        // 如果该订单还未验证虚拟资产
+        let delayMs = 0
+        // 如果该订单未验证虚拟资产，则需要验证支付密码完成支付
         if (!submitOrderRecord["passwordVerified"]) {
-            let ms = getMsFromCurrentMinute(payTimeSeconds, payTimeMilliSeconds) 
-            await sleep(ms);
+            delayMs = getMsFromCurrentMinute(payStartTime[0], payStartTime[1])
         }
+        $tool.notify("jd", `订单创建成功: ${dateFormat(new Date())}`, `${msg}, 将在 ${delayMs}ms 后发送请求\ndata: ${body}`);
+        await sleep(delayMs);
         $done($response)
     }
 }
