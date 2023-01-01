@@ -47,6 +47,52 @@ function responseRoute(functionId, body) {
     })();
 }
 
+
+async function reqSubmitOrderHandler() {
+    let orders = readJson(jdSubmitOrderRecordKey).orders
+    let submitOrderCount = orders.length
+    let delayMs = 0
+    let msg = ''
+    if (enableDelaySubmit) {
+        if (submitOrderCount == 0) {
+            delayMs = getMsFromNextMinute(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
+            msg = `【首次创建订单】`
+        }
+        else if(includeInputPasswordOrder(orders)) {
+            writePasswordVerified()
+            delayMs = getMsFromCurrentMinute(noPwdSubmitOrderTime[0], noPwdSubmitOrderTime[1])
+            msg = `【已验证虚拟资产，本次创建订单不再需要支付密码】`
+        }
+    }
+    $tool.notify("jd", `开始创建订单[${submitOrderCount + 1}]: ${dateFormat(new Date())}`, ` ${msg}, 将在 ${delayMs}ms 后发送请求.`);
+    await sleep(delayMs);
+    console.log(`开始创建订单：${dateFormat(new Date())}`)
+    writeSubmitOrderRecord()
+    $done()
+}
+
+
+async function respSubmitOrderHandler(body) {
+    let order = writeSubmitOrderResp()
+    let msg = `响应耗时: ${order["cost"]}, 平均响应时长: ${readAvgRespCost()}, 平均受理延迟: ${readAvgDelay()}\n`;
+    let obj = JSON.parse(body);
+    if (obj.inputPassword) {
+        $tool.notify("jd", `订单创建失败: ${dateFormat(new Date())}`, `《需输入密码验证虚拟资产》\n${msg} \ndata: ${body}`);
+        writeInputPasswordInOrderRecord()
+        $done($response);
+    } else {
+        let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
+        let delayMs = 0
+        // 如果该订单未验证虚拟资产，则需要验证支付密码完成支付
+        if (!submitOrderRecord["passwordVerified"]) {
+            delayMs = getMsFromCurrentMinute(payStartTime[0], payStartTime[1])
+        }
+        $tool.notify("jd", `订单创建成功: ${dateFormat(new Date())}`, `${msg}, 将在 ${delayMs}ms 后发送请求\ndata: ${body}`);
+        await sleep(delayMs);
+        $done($response)
+    }
+}
+
 function initSubmitOrderRecord() {
     $tool.write(JSON.stringify({orders: []}), jdSubmitOrderRecordKey)
 }
@@ -105,50 +151,6 @@ function readAvgDelay() {
     return parseInt($tool.read(jdAvgDelayKey))
 }
 
-async function reqSubmitOrderHandler() {
-    let orders = readJson(jdSubmitOrderRecordKey).orders
-    let submitOrderCount = orders.length
-    let delayMs = 0
-    let msg = ''
-    if (enableDelaySubmit) {
-        if (submitOrderCount == 0) {
-            delayMs = getMsFromNextMinute(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
-            msg = `【首次创建订单】`
-        }
-        else if(includeInputPasswordOrder(orders)) {
-            writePasswordVerified()
-            delayMs = getMsFromCurrentMinute(noPwdSubmitOrderTime[0], noPwdSubmitOrderTime[1])
-            msg = `【已验证虚拟资产，本次创建订单不再需要支付密码】`
-        }
-    }
-    $tool.notify("jd", `开始创建订单[${submitOrderCount + 1}]: ${dateFormat(new Date())}`, ` ${msg}, 将在 ${delayMs}ms 后发送请求.`);
-    await sleep(delayMs);
-    console.log(`开始创建订单：${dateFormat(new Date())}`)
-    writeSubmitOrderRecord()
-    $done()
-}
-
-
-async function respSubmitOrderHandler(body) {
-    let order = writeSubmitOrderResp()
-    let msg = `响应耗时: ${order["cost"]}, 平均响应时长: ${readAvgRespCost()}, 平均受理延迟: ${readAvgDelay()}\n`;
-    let obj = JSON.parse(body);
-    if (obj.inputPassword) {
-        $tool.notify("jd", `订单创建失败: ${dateFormat(new Date())}`, `《需输入密码验证虚拟资产》\n${msg} \ndata: ${body}`);
-        writeInputPasswordInOrderRecord()
-        $done($response);
-    } else {
-        let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
-        let delayMs = 0
-        // 如果该订单未验证虚拟资产，则需要验证支付密码完成支付
-        if (!submitOrderRecord["passwordVerified"]) {
-            delayMs = getMsFromCurrentMinute(payStartTime[0], payStartTime[1])
-        }
-        $tool.notify("jd", `订单创建成功: ${dateFormat(new Date())}`, `${msg}, 将在 ${delayMs}ms 后发送请求\ndata: ${body}`);
-        await sleep(delayMs);
-        $done($response)
-    }
-}
 
 function getMsFromCurrentMinute(seconds, milliseconds) {
     let dd = new Date()
@@ -170,7 +172,7 @@ function getMsFromNextMinute(seconds, milliseconds) {
 
 function test() {
     let ms = getMsFromCurrentMinute(30, 802);
-    ms = getMsFromNextMinute(0, 0);
+    // ms = getMsFromNextMinute(0, 0);
     (async function() {
         console.log("sleep: " + ms)
         await sleep(ms);

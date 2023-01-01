@@ -6,20 +6,21 @@ const jdCookieKey = "jdCookie"
 const jdServerConfigReqBodyKey = 'jdServerConfigReqBody'
 const jdAvgRespCostKey = 'jdAvgRespCost'  
 const jdAvgDelayKey = 'jdAvgDelay'
-const jdSubmitOrderTimeKey = 'jdSubmitOrderTime'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 // config
-const payTimeSeconds = 3
-const payTimeMilliSeconds = 500
+const firstSubmitOrderTime = [0, 0]
+const noPwdSubmitOrderTime = [1, 500]
+const payStartTime = [3, 500]
 const enableDelaySubmit = true
 
 // 请求
 if ($tool.isRequest) {
 
     if (functionId == "cart") {
-        $tool.notify("jd", `加载购物车: ${dateFormat(new Date())}`);
+        $tool.notify(`JD加载购物车: ${dateFormat(new Date())}`);
         sleep(200).then(() => {
             console.log(currentDate())
+            initSubmitOrderRecord()
             $done();
         })
     }
@@ -31,31 +32,14 @@ if ($tool.isRequest) {
      WIFI 下单到付款2s
      00:500(1), 00:350(6,-3), 00:300(3,-1), 00:290(4,-2), 00:250(,-1), 00:200(2,-2), 00:150(1,-3), 00:120(2,-1), 00:100(5,-2), 00:80(1,-1), 00:50(,-1)
     */
-    else if (functionId == "submitOrder") {
-        $tool.notify("jd", `开始创建订单: ${dateFormat(new Date())}`);
+     else {
         (async function() {
-            while (enableDelaySubmit) {
-                let dd = new Date()
-                let seconds = dd.getSeconds()
-                if (seconds == 0) {
-                    console.log(`发送创建订单请求：${dateFormat(dd)}`)
-                    break
-                }
-                await sleep(1);
+            if (functionId == "submitOrder") {
+                await reqSubmitOrderHandler()
+            } else {
+                $done()
             }
-            $tool.write(new Date().getTime().toString(), jdSubmitOrderTimeKey)
-            $done()
         })();
-        
-    }
-    // if (functionId == 'platJDPayAcc') {
-    //     console.log("进入支付页面 Request")
-    //     console.log(currentDate())
-    //     $done() 
-    // }
-
-    else {
-        $done()
     }
 }
 
@@ -94,41 +78,13 @@ if ($tool.isResponse) {
         $done({ body: JSON.stringify(obj) });
     }
 
-    else if (functionId == 'platPayResult') {
-        console.log('获取支付结果时间：' + currentDate())
-        $done($response);
-    }
-
-    else if (functionId == 'submitOrder') {
-        let obj = JSON.parse(body);
-        if (obj.inputPassword) {
-            $tool.notify("jd", '订单创建失败', `《需输入密码验证虚拟资产》\nbody: ${formatRespData(body)}`);
-            $done($response);
+    (async function() {
+        if (functionId == "submitOrder") {
+            await respSubmitOrderHandler(body)
+        } else {
+            $done($response)
         }
-        let currentTime = new Date()
-        let reqTime = new Date(parseInt($tool.read(jdSubmitOrderTimeKey)))
-        let avgRespCost = parseInt($tool.read(jdAvgRespCostKey))
-        let avgDelay = parseInt($tool.read(jdAvgDelayKey))
-        let cost = currentTime - reqTime
-        let msg = `响应耗时: ${cost}, 平均响应时长: ${avgRespCost}, 平均受理延迟: ${avgDelay}\n body:${body}`;
-        $tool.notify("jd", '订单创建成功', msg);
-        (async function() {
-            while (true) {
-                let currentTime_ = new Date()
-                let seconds = currentTime_.getSeconds()
-                let milliseconds = currentTime_.getMilliseconds()
-                if ((seconds == payTimeSeconds && milliseconds >= payTimeMilliSeconds) || seconds > payTimeSeconds) {
-                    break
-                }
-                await sleep(1);
-            }
-            $done($response);
-        })();
-    }
-
-    else {
-        $done($response);
-    }
+    })();
 }
 
 
@@ -140,6 +96,66 @@ if ($tool.isRun) {
         $done()
     })
 
+}
+
+function notify(title, subtitle, msg) {
+    let = currentDate = currentDate()
+    let titleFormat = `JD[${title}]`
+    let subTitileFormat = `${subtitle}: ${currentDate}`
+    let msgFormat = `${msg} \n\ntitle: ${titleFormat} \n\nsubtitle: ${subTitileFormat}`
+    console.log(msgFormat)
+    $tool.notify(titleFormat, subTitileFormat, msgFormat);
+}
+
+async function reqSubmitOrderHandler() {
+    let orders = readJson(jdSubmitOrderRecordKey).orders
+    let submitOrderCount = orders.length
+    let delayMs = 0
+    let msg = ''
+    let delayDate = new Date()
+    if (enableDelaySubmit) {
+        if (submitOrderCount == 0) {
+            let [date_, ms_] = getNextMinuteDate(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
+            delayMs = ms_;
+            delayDate = date_;
+            msg = `【首次创建订单】`
+        }
+        else if(includeInputPasswordOrder(orders)) {
+            writePasswordVerified()
+            let [date_, ms_] = getCurrentMinuteDate(noPwdSubmitOrderTime[0], noPwdSubmitOrderTime[1])
+            delayMs = ms_;
+            delayDate = date_;
+            msg = `【已验证虚拟资产，本次创建订单不需要支付密码】`
+        }
+    }
+    notify("创建订单请求", `开始创建订单[${submitOrderCount + 1}]`, `${msg}, 将在 ${delayMs}ms [${dateFormat(delayDate)}]后发送请求.`)
+    await sleep(delayMs);
+    writeSubmitOrderRecord()
+    $done()
+}
+
+async function respSubmitOrderHandler(body) {
+    let title = `创建订单响应`
+    let order = writeSubmitOrderResp()
+    let msg = `响应耗时: ${order["cost"]}, 平均响应时长: ${readAvgRespCost()}, 平均受理延迟: ${readAvgDelay()}`;
+    let obj = JSON.parse(body);
+    if (obj.inputPassword) {
+        notify(title,  `订单创建失败`, `》需输入密码验证虚拟资产《\n${msg} \nbody: ${formatRespBody(obj)}`)
+        writeInputPasswordInOrderRecord()
+        $done($response);
+    } else {
+        let delayMs = 0
+        let delayDate = new Date()
+        // 先创建订单，后支付
+        if (!readJson(jdSubmitOrderRecordKey)["passwordVerified"]) {
+            let [date_, ms_] = getCurrentMinuteDate(payStartTime[0], payStartTime[1])
+            delayMs = ms_;
+            delayDate = date_;
+        }
+        notify(title, `订单创建成功`, `${msg}, 将在 ${delayMs}ms [${dateFormat(delayDate)}]后释放响应. \nbody: ${formatRespBody(obj)}`);
+        await sleep(delayMs);
+        $done($response)
+    }
 }
 
 async function showJdServerTime() {
@@ -197,14 +213,100 @@ async function requestServerConfig() {
     });
 }
 
+
+function initSubmitOrderRecord() {
+    $tool.write(JSON.stringify({orders: []}), jdSubmitOrderRecordKey)
+}
+
+function writeSubmitOrderRecord() {
+    let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
+    let orders = submitOrderRecord["orders"] || []
+    orders.push({
+        "requestTime": new Date().getTime()
+    })
+    submitOrderRecord["orders"] = orders
+    $tool.write(JSON.stringify(submitOrderRecord), jdSubmitOrderRecordKey)
+}
+
+function writeInputPasswordInOrderRecord() {
+    let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
+    let orders = submitOrderRecord.orders
+    let lastOrder = orders[orders.length - 1]
+    lastOrder["inputPassword"] = true
+    $tool.write(JSON.stringify(submitOrderRecord), jdSubmitOrderRecordKey)
+}
+
+function writePasswordVerified() {
+    let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
+    submitOrderRecord["passwordVerified"] = true
+    $tool.write(JSON.stringify(submitOrderRecord), jdSubmitOrderRecordKey)
+}
+
+function writeSubmitOrderResp() {
+    let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
+    let orders = submitOrderRecord.orders
+    let lastOrder = orders[orders.length - 1]
+    let currentTime = new Date().getTime()
+    lastOrder["responseTime"] = currentTime
+    lastOrder["cost"] =  currentTime - parseInt(lastOrder["requestTime"])
+    $tool.write(JSON.stringify(submitOrderRecord), jdSubmitOrderRecordKey)
+    return lastOrder
+}
+
+function includeInputPasswordOrder (orders) {
+    for (let i in orders) {
+        let order = orders[i]
+        if (order["inputPassword"] == true) {
+            return true
+        }
+    }
+    return false
+}
+
+function readJson(key) {
+    let submitOrderRecord = $tool.read(key)
+    if (submitOrderRecord) {
+        submitOrderRecord = JSON.parse(submitOrderRecord)
+    } else {
+        submitOrderRecord = {}
+    }
+    return submitOrderRecord
+}
+
+function readAvgRespCost() {
+    return parseInt($tool.read(jdAvgRespCostKey))
+}
+
+function readAvgDelay() {
+    return parseInt($tool.read(jdAvgDelayKey))
+}
+
+function getCurrentMinuteDate(seconds, milliseconds) {
+    let dd = new Date()
+    let currentSeconds = dd.getSeconds()
+    if ((currentSeconds == seconds && dd.getMilliseconds() >= milliseconds) || currentSeconds > seconds) {
+        return [dd, 0]
+    }
+    time = dd.getTime()
+    dd.setTime(time - dd.getMilliseconds() - (dd.getSeconds() * 1000) + seconds * 1000 + milliseconds)
+    return [dd, dd.getTime() - time]
+}
+
+function getNextMinuteDate(seconds, milliseconds) {
+    let dd = new Date()
+    let time = dd.getTime()
+    dd.setTime(time - dd.getMilliseconds() - (dd.getSeconds() * 1000) + 60000 + seconds * 1000 + milliseconds)
+    return [dd, dd.getTime() - time]
+}
+
 function printSupportPromise() {
     'use strict';
     new Promise(function () {});
     console.log('支持Promise!');
 }
 
-function formatRespData(body) {
-    return JSON.stringify(JSON.parse(body), null, "\t")
+function formatRespBody(obj) {
+    return JSON.stringify(obj, null, "\t")
 }
 
 function getReqFunctionId() {
@@ -217,7 +319,6 @@ function getReqUrl() {
     }
     return ""
 }
-
 
 function getQueryString(name) {
     let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
