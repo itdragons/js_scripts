@@ -89,7 +89,7 @@ function writeSubmitOrderResp() {
 function includeInputPasswordOrder (orders) {
     for (let i in orders) {
         let order = orders[i]
-        if (order["inputPassword" == true]) {
+        if (order["inputPassword"] == true) {
             return true
         }
     }
@@ -108,25 +108,19 @@ function readAvgDelay() {
 async function reqSubmitOrderHandler() {
     let orders = readJson(jdSubmitOrderRecordKey).orders
     let submitOrderCount = orders.length
-    $tool.notify("jd", `开始创建订单[${submitOrderCount + 1}]: ${dateFormat(new Date())}`);
+    let delayMs = 0
     if (enableDelaySubmit) {
         if (submitOrderCount == 0) {
-
-            while (true) {
-                let dd = new Date()
-                let seconds = dd.getSeconds()
-                if (seconds == submitOrderSeconds) {
-                    console.log(`延迟发送请求[创建订单]：${dateFormat(dd)}`)
-                    break
-                }
-                await sleep(1);
-            }
+            delayMs = getMsFromNextMinute(0, 0)
         }
         else if(includeInputPasswordOrder(orders)) {
-            // 验证虚拟资产已完成
+            // 已验证虚拟资产，该请求会创建订单并支持，需要延迟提交
             writePasswordVerified()
+            console.log("已验证虚拟资产，该请求会创建订单并支持，需要延迟提交")
         }
     }
+    $tool.notify("jd", `开始创建订单[${submitOrderCount + 1}]: ${dateFormat(new Date())}`, `将延迟 ${delayMs}ms 发送请求`);
+    await sleep(delayMs);
     writeSubmitOrderRecord()
     $done()
 }
@@ -143,26 +137,39 @@ async function respSubmitOrderHandler(body) {
     } else {
         $tool.notify("jd", '订单创建成功', msg);
         let submitOrderRecord = readJson(jdSubmitOrderRecordKey)
-        // 如果虚拟资产已验证
-        if (submitOrderRecord["passwordVerified"]) {
-            // 延迟提交订单
-        } else {
-            while (true) {
-                let currentTime_ = new Date()
-                let seconds = currentTime_.getSeconds()
-                let milliseconds = currentTime_.getMilliseconds()
-                if ((seconds == payTimeSeconds && milliseconds >= payTimeMilliSeconds) || seconds > payTimeSeconds) {
-                    break
-                }
-                await sleep(1);
-            }
+        // 如果该订单还未验证虚拟资产
+        if (!submitOrderRecord["passwordVerified"]) {
+            let ms = getMsFromCurrentMinute(payTimeSeconds, payTimeMilliSeconds) 
+            await sleep(ms);
         }
         $done($response)
     }
 }
 
+function getMsFromCurrentMinute(seconds, milliseconds) {
+    let dd = new Date()
+    let currentSeconds = dd.getSeconds()
+    if ((currentSeconds == seconds && dd.getMilliseconds() >= milliseconds) || currentSeconds > seconds) {
+        return 0
+    }
+    time = dd.getTime()
+    dd.setTime(time - dd.getMilliseconds() - (dd.getSeconds() * 1000) + seconds * 1000 + milliseconds)
+    return dd.getTime() - time
+}
+
+function getMsFromNextMinute(seconds, milliseconds) {
+    let dd = new Date()
+    let time = dd.getTime()
+    dd.setTime(time - dd.getMilliseconds() - (dd.getSeconds() * 1000) + 60000 + seconds * 1000 + milliseconds)
+    return dd.getTime() - time 
+}
 
 function test() {
-    let dd = new Date()
-    console.log(dateFormat(dd))
+    let ms = getMsFromCurrentMinute(30, 802);
+    ms = getMsFromNextMinute(0, 0);
+    (async function() {
+        console.log("sleep: " + ms)
+        await sleep(ms);
+        console.log(dateFormat(new Date()))
+    })(); 
 }
