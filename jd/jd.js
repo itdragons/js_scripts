@@ -9,17 +9,17 @@ const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 // config
 const firstSubmitOrderTime = [0, 0]
-const noPwdSubmitOrderTime = [1, 0]
-const payStartTime = [3, 500]
-const enableSafeMode = true // 如果账号需要验证虚拟资产，该值需要修改为true
+const noPwdSubmitOrderTime = [1, 500]
+const payStartTime = [1, 800]  // 释放支付密码输入框
+const enableSafeMode = false // 如果账号需要验证虚拟资产，该值需要修改为true
 
 // 请求
 if ($tool.isRequest) {
 
     if (functionId == "cart") {
-        let subTitle = `虚拟资产密码验证: ${enableSafeMode}`
-        let msg = enableSafeMode ? "注意：必须在0秒前完成虚拟资产密码验证" : ""
-        $tool.notify(`JD加载购物车: ${dateFormat(new Date())}`, subTitle, msg);
+        // let subTitle = `虚拟资产密码验证: ${enableSafeMode}`
+        // let msg = enableSafeMode ? "注意：必须在0秒前完成虚拟资产密码验证" : ""
+        // $tool.notify(`JD加载购物车: ${dateFormat(new Date())}`, subTitle, msg);
         sleep(200).then(() => {
             console.log(currentDate())
             initSubmitOrderRecord()
@@ -53,7 +53,7 @@ if ($tool.isResponse) {
         let obj = JSON.parse(body);
         let cartInfo = obj["cartInfo"] 
         if (cartInfo && cartInfo["vendors"]) {
-            cartInfo["vendors"][0].shopName = `【${currentDate()}】${cartInfo["vendors"][0].shopName}`
+            cartInfo["vendors"][0].shopName = `【${currentDate()}】${enableSafeMode}_${cartInfo["vendors"][0].shopName}`
             console.log(`cart rewrite: ${cartInfo["vendors"][0].shopName}`)
         }
 
