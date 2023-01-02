@@ -53,7 +53,7 @@ if ($tool.isResponse) {
         let obj = JSON.parse(body);
         let cartInfo = obj["cartInfo"] 
         if (cartInfo && cartInfo["vendors"]) {
-            cartInfo["vendors"][0].shopName = `【${currentDate()}】${enableSafeMode}_${cartInfo["vendors"][0].shopName}`
+            cartInfo["vendors"][0].shopName = `【${currentDate()}】_${cartInfo["vendors"][0].shopName}`
             console.log(`cart rewrite: ${cartInfo["vendors"][0].shopName}`)
         }
 
