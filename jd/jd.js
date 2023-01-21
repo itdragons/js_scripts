@@ -8,10 +8,10 @@ const jdAvgRespCostKey = 'jdAvgRespCost'
 const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 // config
-const firstSubmitOrderTime = [0, 0]
-const noPwdSubmitOrderTime = [1, 500]
-const payStartTime = [1, 800]  // 释放支付密码输入框
+const firstSubmitOrderTime = [59, 800]; // 请求创建订单的时间
+const payStartTime = [0, 700] // 释放响应: 弹出输入支付密码的时间
 const enableSafeMode = false // 如果账号需要验证虚拟资产，该值需要修改为true
+const noPwdSubmitOrderTime = [1, 500]
 
 // 请求
 if ($tool.isRequest) {
@@ -118,7 +118,7 @@ async function reqSubmitOrderHandler() {
     if (submitOrderCount == 0) {
         // 如果启用虚拟资产验证，则首次提交订单不需要延迟提交
         if (!enableSafeMode) {
-            let [date_, ms_] = getNextMinuteDate(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
+            let [date_, ms_] = getCurrentMinuteDate(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
             delayMs = ms_;
             delayDate = date_;
         }
@@ -162,8 +162,8 @@ async function respSubmitOrderHandler(body) {
             delayMs = ms_;
             delayDate = date_;
         }
-        notify(title, `订单创建成功`, `${msg}, 将在 ${delayMs}ms [${dateFormat(delayDate)}]后释放响应. \nbody: ${formatRespBody(obj)}`);
         await sleep(delayMs);
+        notify(title, `订单创建成功`, `${msg}, 已延迟 ${delayMs}ms [${dateFormat(delayDate)}]释放响应. \nbody: ${formatRespBody(obj)}`);
         $done($response)
     }
 }

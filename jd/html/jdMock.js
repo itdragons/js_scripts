@@ -4,9 +4,9 @@ const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 
 // config
-const firstSubmitOrderTime = [0, 0];
+const firstSubmitOrderTime = [59, 800]; // 请求创建订单的时间
 const noPwdSubmitOrderTime = [1, 500]
-const payStartTime = [3, 500]
+const payStartTime = [1, 500] // 释放响应，弹出输入支付密码的时间
 const enableDelaySubmit = true
 
 let $response = {}
@@ -55,7 +55,7 @@ async function reqSubmitOrderHandler() {
     let msg = ''
     if (enableDelaySubmit) {
         if (submitOrderCount == 0) {
-            delayMs = getMsFromNextMinute(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
+            delayMs = getMsFromCurrentMinute(firstSubmitOrderTime[0], firstSubmitOrderTime[1])
             msg = `【首次创建订单】`
         }
         else if(includeInputPasswordOrder(orders)) {
