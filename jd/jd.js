@@ -9,7 +9,8 @@ const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
 // config
 const firstSubmitOrderTime = [59, 800]; // 请求创建订单的时间
-const payStartTime = [0, 700] // 释放响应: 弹出输入支付密码的时间
+const payTimeCost = 1500 // 手动支付耗时
+const payCompletionTime = [3, 0] // 支付完成时间
 const enableSafeMode = false // 如果账号需要验证虚拟资产，该值需要修改为true
 const noPwdSubmitOrderTime = [1, 500]
 
@@ -155,14 +156,13 @@ async function respSubmitOrderHandler(body) {
         $done($response);
     } else {
         let delayMs = 0
-        let delayDate = new Date()
+        let delayDate = undefined
         // 先创建订单，后支付
         if (!readJson(jdSubmitOrderRecordKey)["passwordVerified"]) {
-            let [date_, ms_] = getCurrentMinuteDate(payStartTime[0], payStartTime[1])
-            delayMs = ms_;
-            delayDate = date_;
+            delayMs = payCompletionTime[0] * 1000 + payCompletionTime[1] - payTimeCost - parseInt(readAvgDelay())
         }
         await sleep(delayMs);
+        delayDate = new Date()
         notify(title, `订单创建成功`, `${msg}, 已延迟 ${delayMs}ms [${dateFormat(delayDate)}]释放响应. \nbody: ${formatRespBody(obj)}`);
         $done($response)
     }
