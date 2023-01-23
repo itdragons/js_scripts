@@ -7,9 +7,10 @@ const jdServerConfigReqBodyKey = 'jdServerConfigReqBody'
 const jdAvgRespCostKey = 'jdAvgRespCost'  
 const jdAvgDelayKey = 'jdAvgDelay'
 const jdSubmitOrderRecordKey = 'jdSubmitOrderRecord'
+const jdLastSyncTimeKey = 'jdLastSyncTime'
 // config
 const firstSubmitOrderTime = [59, 800]; // 请求创建订单的时间
-const payTimeCost = 1500 // 手动支付耗时
+const payTimeCost = 2050 // 手动支付耗时, 用时越短,sleep越长
 const payCompletionTime = [3, 0] // 支付完成时间
 const enableSafeMode = false // 如果账号需要验证虚拟资产，该值需要修改为true
 const noPwdSubmitOrderTime = [1, 500]
@@ -24,7 +25,16 @@ if ($tool.isRequest) {
         sleep(200).then(() => {
             console.log(currentDate())
             initSubmitOrderRecord()
-            $done();
+
+            let dd = new Date()
+            let jdLastSyncTime = $tool.read(jdLastSyncTimeKey)
+            if (dd.getHours() + ':' + dd.getMinutes() !== jdLastSyncTime) {
+                showJdServerTime().then(() => {
+                    $done()
+                }) 
+            } else {
+                $done();
+            }
         })
     }
     /* cart 接口响应时间，4G：150-170ms， wifi： 90-120
@@ -54,7 +64,9 @@ if ($tool.isResponse) {
         let obj = JSON.parse(body);
         let cartInfo = obj["cartInfo"] 
         if (cartInfo && cartInfo["vendors"]) {
-            cartInfo["vendors"][0].shopName = `【${currentDate()}】_${cartInfo["vendors"][0].shopName}`
+            let dd = new Date()
+            let currentMsAndAvgDeplay = `${dd.getSeconds()}_${$tool.read(jdAvgDelayKey)}`
+            cartInfo["vendors"][0].shopName = `【${currentMsAndAvgDeplay}】_${cartInfo["vendors"][0].shopName}`
             console.log(`cart rewrite: ${cartInfo["vendors"][0].shopName}`)
         }
 
@@ -104,10 +116,10 @@ if ($tool.isRun) {
 function notify(title, subtitle, msg) {
     let = currentDate = currentDate()
     let titleFormat = `JD[${title}]`
-    let subTitileFormat = `${subtitle}: ${currentDate}`
-    let msgFormat = `${msg} \n\ntitle: ${titleFormat} \n\nsubtitle: ${subTitileFormat}`
+    let subTitleFormat = `${subtitle} | ${currentDate}`
+    let msgFormat = `\n\n${msg} \n\ntitle: ${titleFormat} \n\nsubtitle: ${subTitleFormat}`
     console.log(msgFormat)
-    $tool.notify(titleFormat, subTitileFormat, msgFormat);
+    $tool.notify(titleFormat, subTitleFormat, msgFormat);
 }
 
 async function reqSubmitOrderHandler() {
@@ -159,7 +171,13 @@ async function respSubmitOrderHandler(body) {
         let delayDate = undefined
         // 先创建订单，后支付
         if (!readJson(jdSubmitOrderRecordKey)["passwordVerified"]) {
-            delayMs = payCompletionTime[0] * 1000 + payCompletionTime[1] - payTimeCost - parseInt(readAvgDelay())
+            let currentDate = new Date()
+            let currentMs = currentDate.getSeconds() * 1000 + currentDate.getMilliseconds() 
+            delayMs = (payCompletionTime[0] * 1000 + payCompletionTime[1]) - currentMs - payTimeCost - parseInt(readAvgDelay())
+            if (delayMs < 0) {
+                notify(title, `订单创建成功`, `延迟时间计算错误: ${msg}`);
+                delayMs = 0 
+            }
         }
         await sleep(delayMs);
         delayDate = new Date()
@@ -169,7 +187,7 @@ async function respSubmitOrderHandler(body) {
 }
 
 async function showJdServerTime() {
-    let runCount = 5
+    let runCount = 3
     let costSum = 0
     let delaySum = 0
     await requestServerConfig().then(async () => {
@@ -194,12 +212,13 @@ async function showJdServerTime() {
         })
         await sleep(1000)
     }
-    let avgResp = costSum / runCount 
-    let avgDelay = delaySum / runCount
+    let avgResp = parseInt(costSum / runCount)
+    let avgDelay = parseInt(delaySum / runCount)
     $tool.write(avgResp.toString(), jdAvgRespCostKey)
     $tool.write(avgDelay.toString(), jdAvgDelayKey)
-    console.log(`\n\n平均响应时长：${avgResp}ms`)
-    console.log(`请求受理平均延迟：${avgDelay}ms 【发送请求的本机时间 到达 服务端受理的时间延迟】`)
+    let dd = new Date()
+    $tool.write(dd.getHours() + ':' + dd.getMinutes(), jdLastSyncTimeKey)
+    notify("同步时间", `平均响应时长：${avgResp}ms`, `请求受理平均延迟：${avgDelay}ms 【发送请求的本机时间 到达 服务端受理的时间延迟】`);
 }
 
 async function requestServerConfig() {
