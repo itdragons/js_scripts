@@ -160,7 +160,8 @@ async function reqSubmitOrderHandler() {
 async function respSubmitOrderHandler(body) {
     let title = `创建订单响应`
     let order = writeSubmitOrderResp()
-    let msg = `响应耗时: ${order["cost"]}, 平均响应时长: ${readAvgRespCost()}, 平均受理延迟: ${readAvgDelay()}`;
+    let avgDelay = parseInt(readAvgDelay())
+    let msg = `响应耗时: ${order["cost"]}, 平均响应时长: ${readAvgRespCost()}, 平均受理延迟: ${avgDelay}`;
     let obj = JSON.parse(body);
     if (obj.inputPassword) {
         notify(title,  `订单创建失败`, `》需输入密码验证虚拟资产《\n${msg} \nbody: ${formatRespBody(obj)}`)
@@ -173,7 +174,7 @@ async function respSubmitOrderHandler(body) {
         if (!readJson(jdSubmitOrderRecordKey)["passwordVerified"]) {
             let currentDate = new Date()
             let currentMs = currentDate.getSeconds() * 1000 + currentDate.getMilliseconds() 
-            delayMs = (payCompletionTime[0] * 1000 + payCompletionTime[1]) - currentMs - payTimeCost - parseInt(readAvgDelay())
+            delayMs = (payCompletionTime[0] * 1000 + payCompletionTime[1]) - currentMs - payTimeCost - avgDelay
             if (delayMs < 0) {
                 notify(title, `订单创建成功`, `延迟时间计算错误: ${msg}`);
                 delayMs = 0 
@@ -181,6 +182,9 @@ async function respSubmitOrderHandler(body) {
         }
         await sleep(delayMs);
         delayDate = new Date()
+        let sum = delayDate.getSeconds() * 1000 + delayDate.getMilliseconds() + avgDelay
+        let sum2 = sum + order["cost"]
+        msg = `${msg}, sum= ${sum},${sum2}`
         notify(title, `订单创建成功`, `${msg}, 已延迟 ${delayMs}ms [${dateFormat(delayDate)}]释放响应. \nbody: ${formatRespBody(obj)}`);
         $done($response)
     }
