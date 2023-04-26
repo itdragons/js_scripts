@@ -1,0 +1,1086 @@
+{
+    "api": "mtop.trade.order.build.h5",
+    "data": {
+        "global": {
+            "secretValue": "135bed29e3d598e37887b61033c71509673da1aeb8ae31ee60ac5c6754f0d816",
+            "secretKey": "submitref"
+        },
+        "reload": true,
+        "data": {
+            "dmDeliverySelectCard_597257": {
+                "fields": {
+                    "extraLink": false,
+                    "tipInfo": "支付成功后，无需取票，前往票夹查看入场凭证",
+                    "title": "配送方式",
+                    "desc": "电子票",
+                    "selectedId": "1_1",
+                    "deliveryTag": "实名制观演"
+                },
+                "id": "597257",
+                "submit": true,
+                "type": "dinamicx$3127$dmselectheader",
+                "tag": "dmDeliverySelectCard",
+                "ref": "954e85d"
+            },
+            "dmDeliveryMachineAddress_597262": {
+                "fields": {
+                    "info": "取票点"
+                },
+                "ref": "da78c02",
+                "events": {
+                    "itemClick": [
+                        {
+                            "tag": "openUrl",
+                            "type": "openUrl",
+                            "fields": {
+                                "params": {
+                                    "venueId": "null",
+                                    "performId": "null"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "id": "597262",
+                "status": "hidden",
+                "tag": "dmDeliveryMachineAddress",
+                "type": "dinamicx$3507$dmrigtharrow"
+            },
+            "dmInvoiceBlock_DmInvoiceBlock": {
+                "fields": {},
+                "id": "DmInvoiceBlock",
+                "cardGroup": "true",
+                "type": "block$null$emptyBlock",
+                "tag": "dmInvoiceBlock",
+                "ref": "62ca678"
+            },
+            "dmDeliveryAddress_597259": {
+                "submit": true,
+                "ref": "43624bf",
+                "fields": {
+                    "addressTitle": "收货地址",
+                    "phoneTitle": "电话",
+                    "consigneeTitle": "收件人"
+                },
+                "id": "597259",
+                "events": {
+                    "addressClick": [
+                        {
+                            "tag": "openPopupWindow",
+                            "type": "openPopupWindow",
+                            "fields": {
+                                "options": {
+                                    "needCloseButton": "true"
+                                },
+                                "css": {
+                                    "height": "0.6"
+                                },
+                                "nextRenderRoot": "dmDeliveryAddressSelectPopupWindowBlock_597259_window_root",
+                                "params": {}
+                            }
+                        }
+                    ]
+                },
+                "status": "hidden",
+                "tag": "dmDeliveryAddress",
+                "type": "dinamicx$3110$dmdeliveryaddress201904"
+            },
+            "dmDeliveryFee_597260": {
+                "fields": {
+                    "title": "运费"
+                },
+                "id": "597260",
+                "status": "hidden",
+                "type": "dinamicx$3172$dmdeliveryfee",
+                "tag": "dmDeliveryFee",
+                "ref": "8c1f4d5"
+            },
+            "dmContactEmail_597269": {
+                "submit": true,
+                "ref": "63ba2eb",
+                "fields": {
+                    "label": "邮箱",
+                    "placeholder": "请填写联系人邮箱"
+                },
+                "id": "597269",
+                "events": {
+                    "onFinish": [
+                        {
+                            "tag": "input",
+                            "type": "input",
+                            "fields": {}
+                        }
+                    ]
+                },
+                "status": "hidden",
+                "tag": "dmContactEmail",
+                "type": "dinamicx$3128$dminput",
+                "validate": {
+                    "msg": [
+                        "请填写联系人邮箱"
+                    ],
+                    "regex": [
+                        "^[\\S]+$"
+                    ],
+                    "fields": [
+                        "value"
+                    ]
+                }
+            },
+            "dmOrderSubmitBlock_DmOrderSubmitBlock": {
+                "fields": {},
+                "id": "DmOrderSubmitBlock",
+                "type": "block$null$emptyBlock",
+                "tag": "dmOrderSubmitBlock",
+                "ref": "5ca4c77"
+            },
+            "dmNewProtocol_597282": {
+                "fields": {
+                    "richIcon": "https:\/\/gw.alicdn.com\/imgextra\/i3\/O1CN0129kv4k1P37Gu8MqiZ_!!6000000001784-2-tps-64-64.png",
+                    "richDesc1": "购票需要您知晓",
+                    "richDesc2": "大麦网订票服务条款：",
+                    "protocolTextList": [
+                        {
+                            "richText": "由于票品为有价证券，非普通商品，其背后承载的文化服务具有时效性、稀缺性等特征，一旦订购成功，不支持退换。",
+                            "richTitle": "不支持退换"
+                        }
+                    ],
+                    "richDesc": "购票需要您知晓 大麦网订票服务条款："
+                },
+                "id": "597282",
+                "type": "dinamicx$18635$dmprotocol",
+                "tag": "dmNewProtocol",
+                "ref": "gdcb00"
+            },
+            "dmDeliveryTip_597258": {
+                "fields": {
+                    "tipInfo": "支付成功后，无需取票，前往票夹查看入场凭证",
+                    "deliveryTag": "实名制观演"
+                },
+                "id": "597258",
+                "type": "dinamicx$3107$dmdeliverytip201904",
+                "tag": "dmDeliveryTip",
+                "ref": "e313ec1"
+            },
+            "tmallPaymentPopupWindFooter_1": {
+                "fields": {
+                    "buttonText": "确认"
+                },
+                "ref": "g8eaa3",
+                "position": "footer",
+                "id": "1",
+                "events": {
+                    "itemClick": [
+                        {
+                            "tag": "adjustMaoX",
+                            "type": "adjustMaoX",
+                            "fields": {
+                                "action": "alipayPaymentPickerPlus_popuproot",
+                                "inputComponents": [],
+                                "uploadComponents": [
+                                    "tmallPaymentPopupWindContent"
+                                ]
+                            }
+                        },
+                        {
+                            "tag": "userTrack",
+                            "type": "userTrack",
+                            "fields": {
+                                "eventId": "2101",
+                                "arg1": "Page_Order_B_PaymentPickerFooter_Click",
+                                "page": "Page_Order"
+                            }
+                        }
+                    ]
+                },
+                "tag": "tmallPaymentPopupWindFooter",
+                "type": "dinamicx$30208$maoxpopupbottom"
+            },
+            "dmPayType_597276": {
+                "submit": true,
+                "ref": "b7922c3",
+                "fields": {
+                    "allTip": "其他支付方式",
+                    "paytypeList": [
+                        {
+                            "code": "WECHAT_APPLET",
+                            "isUsed": true,
+                            "icon": "https:\/\/gw.alicdn.com\/tfs\/TB1_rcpdStYBeNjSspkXXbU8VXa-64-64.png",
+                            "name": "微信支付"
+                        }
+                    ]
+                },
+                "id": "597276",
+                "events": {
+                    "itemClick": [
+                        {
+                            "tag": "select",
+                            "type": "select",
+                            "fields": {}
+                        }
+                    ]
+                },
+                "tag": "dmPayType",
+                "type": "native$null$dmpaytype"
+            },
+            "confirmOrder_1": {
+                "submit": true,
+                "ref": "8318d7a",
+                "hidden": {
+                    "extensionMap": {
+                        "umid": "",
+                        "joinId": "1bb4f24223ff1a2a4fcb943b7807e1a4",
+                        "__ex_params__": "{\"umpChannel\":\"100031002\",\"serviceVersion\":\"2.0.0\",\"customerType\":\"default\",\"EXCLUDE_BY_NEWTON_GRAY_KEY\":true,\"damai\":\"1\",\"channel\":\"damai_app\",\"subChannel\":\"damai@weixin_weapp\",\"atomSplit\":\"1\"}",
+                        "pageType": "DAMAI"
+                    }
+                },
+                "id": "1",
+                "fields": {},
+                "tag": "confirmOrder",
+                "type": "block$null$emptyBlock"
+            },
+            "dmTopNotification_597250": {
+                "fields": {
+                    "bgColor": "#DE3F64",
+                    "value": "因项目火爆，请在下单后5分钟内完成支付"
+                },
+                "id": "597250",
+                "type": "dinamicx$3032$dmtopnotification201904",
+                "tag": "dmTopNotification",
+                "ref": "7aa6184"
+            },
+            "dmDeliveryWayBlock_DmDeliveryWayBlock": {
+                "fields": {},
+                "id": "DmDeliveryWayBlock",
+                "type": "block$null$emptyBlock",
+                "tag": "dmDeliveryWayBlock",
+                "ref": "b9088d9"
+            },
+            "dmPayDetailPopupWindowBlock_597283_window_root": {
+                "fields": {},
+                "id": "597283_window_root",
+                "type": "block$null$emptyBlock",
+                "tag": "dmPayDetailPopupWindowBlock",
+                "ref": "0b0184f"
+            },
+            "dmViewerBlock_DmViewerBlock": {
+                "fields": {},
+                "id": "DmViewerBlock",
+                "type": "block$null$emptyBlock",
+                "tag": "dmViewerBlock",
+                "ref": "dd54274"
+            },
+            "dmContactTitle_597266": {
+                "fields": {
+                    "iconMark": "iconMark",
+                    "title": "联系人"
+                },
+                "id": "597266",
+                "events": {
+                    "itemClick": [
+                        {
+                            "tag": "openUrl",
+                            "type": "openUrl",
+                            "fields": {
+                                "method": "post",
+                                "params": {
+                                    "iconMark": "iconMark"
+                                },
+                                "url": "",
+                                "pageType": "H5"
+                            }
+                        }
+                    ]
+                },
+                "type": "dinamicx$3127$dmselectheader",
+                "tag": "dmContactTitle",
+                "ref": "e9a61c1"
+            },
+            "order_bcac2aa16e7328717c898817f6bed1bf": {
+                "fields": {},
+                "id": "bcac2aa16e7328717c898817f6bed1bf",
+                "cardGroup": "true",
+                "type": "block$null$emptyBlock",
+                "tag": "order",
+                "ref": "a9dc6bd"
+            },
+            "dmTopNotificationBlock_DmTopNotificationBlock": {
+                "fields": {},
+                "id": "DmTopNotificationBlock",
+                "type": "block$null$emptyBlock",
+                "tag": "dmTopNotificationBlock",
+                "ref": "5eafcf2"
+            },
+            "item_1bb4f24223ff1a2a4fcb943b7807e1a4": {
+                "submit": true,
+                "ref": "360f46f",
+                "hidden": {
+                    "extensionMap": {
+                        "itemId": "711057844726",
+                        "cartId": "0",
+                        "shoppingOrderId": "0",
+                        "bizCode": "ali.china.damai",
+                        "valid": "true",
+                        "skuId": "5155418214615",
+                        "villagerId": "0"
+                    }
+                },
+                "id": "1bb4f24223ff1a2a4fcb943b7807e1a4",
+                "fields": {},
+                "tag": "item",
+                "type": "block$null$emptyBlock"
+            },
+            "dmContactName_597267": {
+                "submit": true,
+                "ref": "60f80d3",
+                "fields": {
+                    "label": "姓名",
+                    "placeholder": "请填写联系人姓名"
+                },
+                "id": "597267",
+                "events": {
+                    "onFinish": [
+                        {
+                            "tag": "input",
+                            "type": "input",
+                            "fields": {}
+                        }
+                    ]
+                },
+                "tag": "dmContactName",
+                "type": "dinamicx$3128$dminput",
+                "validate": {
+                    "msg": [
+                        "请填写联系人姓名",
+                        "联系人姓名不可长于10"
+                    ],
+                    "regex": [
+                        "^[\\S]+$",
+                        "^[\\S]{1,10}$"
+                    ],
+                    "fields": [
+                        "value",
+                        "value"
+                    ]
+                }
+            },
+            "dmPayDetailPopup_597279": {
+                "fields": {
+                    "topTitle": "价格明细",
+                    "detailInfos": [
+                        {
+                            "desc": "¥ 150.00",
+                            "title": "商品信息",
+                            "type": "root"
+                        },
+                        {
+                            "desc": "×1",
+                            "title": "¥ 150.00"
+                        }
+                    ],
+                    "payDetailTitle": "付款明细",
+                    "ticketTitle": "票品信息"
+                },
+                "id": "597279",
+                "type": "native$null$dmpaydetail",
+                "tag": "dmPayDetailPopup",
+                "ref": "cda42cb"
+            },
+            "dmItemBlock_DmItemBlock": {
+                "fields": {},
+                "id": "DmItemBlock",
+                "type": "block$null$emptyBlock",
+                "tag": "dmItemBlock",
+                "ref": "9e4fb41"
+            },
+            "dmPayTypeTitle_597276": {
+                "fields": {
+                    "title": "支付方式"
+                },
+                "id": "597276",
+                "type": "dinamicx$3127$dmselectheader",
+                "tag": "dmPayTypeTitle",
+                "ref": "85fd3a7"
+            },
+            "dmContactPhone_597268": {
+                "submit": true,
+                "ref": "1934a29",
+                "fields": {
+                    "label": "手机号",
+                    "placeholder": "请填写联系人手机号",
+                    "list": [
+                        {
+                            "code": "+86",
+                            "area": "中国大陆"
+                        },
+                        {
+                            "code": "+852",
+                            "area": "中国香港"
+                        },
+                        {
+                            "code": "+853",
+                            "area": "中国澳门"
+                        },
+                        {
+                            "code": "+886",
+                            "area": "中国台湾"
+                        }
+                    ],
+                    "value": "13098289616",
+                    "selectedIndex": 0
+                },
+                "id": "597268",
+                "events": {
+                    "onFinish": [
+                        {
+                            "tag": "input",
+                            "type": "input",
+                            "fields": {
+                                "value": "13098289616"
+                            }
+                        }
+                    ],
+                    "itemClick": [
+                        {
+                            "tag": "openPopupWindow",
+                            "type": "openPopupWindow",
+                            "fields": {
+                                "options": {
+                                    "needCloseButton": "true"
+                                },
+                                "css": {
+                                    "height": "0.6"
+                                },
+                                "nextRenderRoot": "dmContactPhoneAreaCodeSelectPopupWindowBlock_dmContactPhoneAreaCodeSelectPopupWindowBlock__window_root",
+                                "params": {
+                                    "phoneAreaCodeEntries": "[{\"area\":\"中国大陆\",\"code\":\"+86\"},{\"area\":\"中国香港\",\"code\":\"+852\"},{\"area\":\"中国澳门\",\"code\":\"+853\"},{\"area\":\"中国台湾\",\"code\":\"+886\"}]"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "tag": "dmContactPhone",
+                "type": "dinamicx$3116$dmcontactsphone201904",
+                "validate": {
+                    "msg": [
+                        "请填写联系人手机号"
+                    ],
+                    "regex": [
+                        "^[\\S]+$"
+                    ],
+                    "fields": [
+                        "value"
+                    ]
+                }
+            },
+            "dmTicketsInfo_597253": {
+                "fields": {
+                    "ticketQuantity": "×1张",
+                    "ticketPrice": "￥150.00票档"
+                },
+                "id": "597253",
+                "type": "dinamicx$2974$dmbuyticketsinfo201904",
+                "tag": "dmTicketsInfo",
+                "ref": "bbaf25b"
+            },
+            "dmContactBlock_DmContactBlock": {
+                "fields": {},
+                "id": "DmContactBlock",
+                "cardGroup": "true",
+                "type": "block$null$emptyBlock",
+                "tag": "dmContactBlock",
+                "ref": "8bbe0ba"
+            },
+            "dmViewerTitle_597255": {
+                "fields": {
+                    "titleTip": "（本场次要求实名购票）",
+                    "filterRule": "1,4,6,5",
+                    "maxNumTip": "仅需选择1位；入场需携带对应证件",
+                    "title": "实名观演人",
+                    "extra": "新增",
+                    "highLight": false
+                },
+                "id": "597255",
+                "events": {
+                    "itemClick": [
+                        {
+                            "tag": "openUrl",
+                            "type": "openUrl",
+                            "fields": {
+                                "method": "post",
+                                "params": {},
+                                "url": "",
+                                "pageType": "H5"
+                            }
+                        }
+                    ]
+                },
+                "type": "dinamicx$3207$dmviewerheader",
+                "tag": "dmViewerTitle",
+                "ref": "c9be14a"
+            },
+            "dmEttributesHiddenBlock_DmAttributesBlock": {
+                "fields": {
+                    "extraAttributes": "{\"finalRenderTraceId\":\"213e200516825154168558352e10cb\",\"renderTraceId\":\"213e200516825154168558352e10cb\"}"
+                },
+                "id": "DmAttributesBlock",
+                "submit": true,
+                "type": "block$null$dmettributeshidden",
+                "tag": "dmEttributesHiddenBlock",
+                "ref": "3dea421"
+            },
+            "dmSubmit_597283": {
+                "fields": {
+                    "totalFee": "¥ 150.00",
+                    "descCss": {
+                        "color": "#999999"
+                    },
+                    "payBtn": {
+                        "title": "提交订单"
+                    },
+                    "payDetail": {
+                        "iconup": "https:\/\/gw.alicdn.com\/tfs\/TB19fMrl7L0gK0jSZFAXXcA9pXa-200-200.png",
+                        "status": false,
+                        "desc": "明细",
+                        "icondown": "https:\/\/gw.alicdn.com\/tfs\/TB1035qmAT2gK0jSZFkXXcIQFXa-200-200.png"
+                    }
+                },
+                "ref": "8541786",
+                "position": "footer",
+                "id": "597283",
+                "events": {
+                    "detailClick": [
+                        {
+                            "tag": "openPopupWindow",
+                            "type": "openPopupWindow",
+                            "fields": {
+                                "options": {
+                                    "needCloseButton": "true"
+                                },
+                                "css": {
+                                    "height": "0.6"
+                                },
+                                "nextRenderRoot": "dmPayDetailPopupWindowBlock_597283_window_root",
+                                "params": {
+                                    "dmPayDetailPopup": "597279"
+                                }
+                            }
+                        }
+                    ],
+                    "itemClick": [
+                        {
+                            "tag": "submit",
+                            "type": "submit",
+                            "fields": {}
+                        }
+                    ]
+                },
+                "tag": "dmSubmit",
+                "type": "dinamicx$3129$dmbuysubmit"
+            },
+            "dmDeliveryTicketAddress_597263": {
+                "fields": {},
+                "id": "597263",
+                "status": "hidden",
+                "type": "dinamicx$3108$dmdeliveryticketaddressinfo",
+                "tag": "dmDeliveryTicketAddress",
+                "ref": "0c10c37"
+            },
+            "dmViewer_597255": {
+                "submit": true,
+                "ref": "cba4eb8",
+                "fields": {
+                    "expandTip": "全部观演人",
+                    "asyncTarget": "dmViewerTitle_597255",
+                    "buyerTotalNum": 1,
+                    "omitDisplaySum": 20,
+                    "idTypes": "1,4,6,5",
+                    "viewerList": [
+                        {
+                            "idType": 1,
+                            "isUsed": false,
+                            "idTypeDesc": "身份证",
+                            "identityNo": "",
+                            "hashIdentityNo": "612************413",
+                            "viewerId": "11000b2d780b91ce090bf4e31929da10f6a83a2873463",
+                            "isDisabled": false,
+                            "viewerName": "石龙龙",
+                            "maskedIdentityNo": "612************413"
+                        },
+                        {
+                            "idType": 1,
+                            "isUsed": false,
+                            "idTypeDesc": "身份证",
+                            "identityNo": "",
+                            "hashIdentityNo": "610************045",
+                            "viewerId": "110009e3539e28cfd95b2682f7d54bfdbd45fbf931ed3",
+                            "isDisabled": false,
+                            "viewerName": "闫嘉敏",
+                            "maskedIdentityNo": "610************045"
+                        },
+                        {
+                            "idType": 1,
+                            "isUsed": false,
+                            "idTypeDesc": "身份证",
+                            "identityNo": "",
+                            "hashIdentityNo": "622************016",
+                            "viewerId": "11000278aa2b465f98aa0c96651b8bba31367c86548ad",
+                            "isDisabled": false,
+                            "viewerName": "马骁",
+                            "maskedIdentityNo": "622************016"
+                        }
+                    ],
+                    "selectedNum": 0
+                },
+                "id": "597255",
+                "tag": "dmViewer",
+                "type": "native$null$dmviewer",
+                "validate": {
+                    "msg": [
+                        "共需选择1位观演人"
+                    ],
+                    "regex": [
+                        "1"
+                    ],
+                    "fields": [
+                        "selectedNum"
+                    ]
+                }
+            },
+            "tmallPaymentPopupWindHead_tmallPaymentPopupWindHead": {
+                "position": "header",
+                "id": "tmallPaymentPopupWindHead",
+                "fields": {
+                    "title": "切换支付方式"
+                },
+                "type": "dinamicx$30207$maoxpopuptitle",
+                "tag": "tmallPaymentPopupWindHead",
+                "ref": "gf34f7"
+            },
+            "dmPayTypeBlock_DmPayTypeBlock": {
+                "fields": {},
+                "id": "DmPayTypeBlock",
+                "cardGroup": "true",
+                "type": "block$null$emptyBlock",
+                "tag": "dmPayTypeBlock",
+                "ref": "b2bc9fa"
+            },
+            "dmPromotionBlock_DmPromotionBlock": {
+                "fields": {},
+                "id": "DmPromotionBlock",
+                "cardGroup": "true",
+                "type": "block$null$emptyBlock",
+                "tag": "dmPromotionBlock",
+                "ref": "gab26e"
+            },
+            "dmItemInfo_597252": {
+                "hidden": {
+                    "extensionMap": {
+                        "refundTipsURL": "http:\/\/img.alicdn.com\/imgextra\/i3\/3360706462\/O1CN011xbdpwQFClZxaRG_!!3360706462.png"
+                    }
+                },
+                "ref": "ded7c10",
+                "fields": {
+                    "showVenue": "西安市 | 西演SPACE·光圈CLUB",
+                    "showTime": "2023.06.21 20:00",
+                    "itemPicUrl": "http:\/\/img.alicdn.com\/imgextra\/i4\/2251059038\/O1CN01FUD3wp2GdSTDUZhVT_!!2-item_pic.png",
+                    "itemTitle": "红中Redok【雀神游戏】巡演西安站",
+                    "dmTicketInfo": [
+                        {
+                            "ticketPrice": "￥150.00票档",
+                            "ticketQuantity": "×1张"
+                        }
+                    ],
+                    "dmRemindList": [
+                        {
+                            "textColor": "#FF2D79",
+                            "icon": "https:\/\/gw.alicdn.com\/imgextra\/i3\/O1CN010wSag31vejULV6F9g_!!6000000006198-2-tps-36-36.png",
+                            "text": "不支持退"
+                        },
+                        {
+                            "textColor": "#666666",
+                            "icon": "https:\/\/gw.alicdn.com\/imgextra\/i1\/O1CN01ONTdEs1MRRRZHYtGV_!!6000000001431-2-tps-36-36.png",
+                            "text": "可开发票"
+                        },
+                        {
+                            "textColor": "#666666",
+                            "icon": "https:\/\/gw.alicdn.com\/imgextra\/i1\/O1CN01ONTdEs1MRRRZHYtGV_!!6000000001431-2-tps-36-36.png",
+                            "text": "实名制观演"
+                        }
+                    ],
+                    "returnTips": "不支持退",
+                    "refundTipsURL": "http:\/\/img.alicdn.com\/imgextra\/i3\/3360706462\/O1CN011xbdpwQFClZxaRG_!!3360706462.png",
+                    "refundTips": "购票须知",
+                    "bgColor": "#DE3F64",
+                    "sellerShop": {},
+                    "itemId": "711057844726"
+                },
+                "id": "597252",
+                "events": {
+                    "itemClick": [
+                        {
+                            "tag": "openUrl",
+                            "type": "openUrl",
+                            "fields": {
+                                "method": "post",
+                                "params": {
+                                    "conform": "true",
+                                    "index": "0",
+                                    "itemId": "711057844726"
+                                },
+                                "url": "purchase_notice",
+                                "pageType": "native"
+                            }
+                        }
+                    ],
+                    "closeClick": [
+                        {
+                            "tag": "bizEvent",
+                            "type": "remain",
+                            "fields": {
+                                "bizType": "remain"
+                            }
+                        }
+                    ]
+                },
+                "tag": "dmItemInfo",
+                "type": "dinamicx$2956$dmbuyitem201904"
+            }
+        },
+        "container": {
+            "data": [
+                {
+                    "url": "https:\/\/dinamicx.alibabausercontent.com\/pub\/dm_buy_item_201904\/1680145710967\/dm_buy_item_201904_h5.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_buy_item_201904",
+                    "type": [
+                        "dinamicx$2956$dmbuyitem201904"
+                    ],
+                    "version": "62"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/publish\/1626245690027\/dm_buy_submit.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_buy_submit",
+                    "type": [
+                        "dinamicx$3129$dmbuysubmit"
+                    ],
+                    "version": "29"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/publish\/1573208489668\/dm_buy_ticketsinfo_201904.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_buy_ticketsinfo_201904",
+                    "type": [
+                        "dinamicx$2974$dmbuyticketsinfo201904"
+                    ],
+                    "version": "19"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1638412619230\/dm_contacts_phone_201904.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_contacts_phone_201904",
+                    "type": [
+                        "dinamicx$3116$dmcontactsphone201904"
+                    ],
+                    "version": "20"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/publish\/1573546487915\/dm_delivery_address_201904.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_delivery_address_201904",
+                    "type": [
+                        "dinamicx$3110$dmdeliveryaddress201904"
+                    ],
+                    "version": "16"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1572438376346\/dm_delivery_fee.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_delivery_fee",
+                    "type": [
+                        "dinamicx$3172$dmdeliveryfee"
+                    ],
+                    "version": "11"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/publish\/1573631461236\/dm_delivery_ticket_addressinfo.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_delivery_ticket_addressinfo",
+                    "type": [
+                        "dinamicx$3108$dmdeliveryticketaddressinfo"
+                    ],
+                    "version": "15"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/publish\/1573208529813\/dm_delivery_tip_201904.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_delivery_tip_201904",
+                    "type": [
+                        "dinamicx$3107$dmdeliverytip201904"
+                    ],
+                    "version": "14"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1638412511260\/dm_input.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_input",
+                    "type": [
+                        "dinamicx$3128$dminput"
+                    ],
+                    "version": "16"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1638412728684\/dm_protocol.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_protocol",
+                    "type": [
+                        "dinamicx$18635$dmprotocol"
+                    ],
+                    "version": "6"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1638412408583\/dm_rigth_arrow.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_rigth_arrow",
+                    "type": [
+                        "dinamicx$3507$dmrigtharrow"
+                    ],
+                    "version": "12"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/publish\/1638412137030\/dm_select_header.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_select_header",
+                    "type": [
+                        "dinamicx$3127$dmselectheader"
+                    ],
+                    "version": "27"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1638411856658\/dm_top_notification_201904.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_top_notification_201904",
+                    "type": [
+                        "dinamicx$3032$dmtopnotification201904"
+                    ],
+                    "version": "9"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1595476889591\/dm_viewer_header.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "dm_viewer_header",
+                    "type": [
+                        "dinamicx$3207$dmviewerheader"
+                    ],
+                    "version": "20"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1641105215548\/maox_popup_bottom.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "maox_popup_bottom",
+                    "type": [
+                        "dinamicx$30208$maoxpopupbottom"
+                    ],
+                    "version": "4"
+                },
+                {
+                    "url": "https:\/\/ossgw.alicdn.com\/rapid-oss-bucket\/1641105215548\/maox_popup_bottom.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "maox_popup_bottom",
+                    "type": [
+                        "dinamicx$30208$maoxpopupbottom"
+                    ],
+                    "version": "4"
+                },
+                {
+                    "url": "https:\/\/dinamicx.alibabausercontent.com\/pub\/maox_popup_title\/1671087859119\/maox_popup_title_h5.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "maox_popup_title",
+                    "type": [
+                        "dinamicx$30207$maoxpopuptitle"
+                    ],
+                    "version": "8"
+                },
+                {
+                    "url": "https:\/\/dinamicx.alibabausercontent.com\/pub\/maox_popup_title\/1671087859119\/maox_popup_title_h5.js",
+                    "md5": null,
+                    "containerType": "dinamicx",
+                    "name": "maox_popup_title",
+                    "type": [
+                        "dinamicx$30207$maoxpopuptitle"
+                    ],
+                    "version": "8"
+                }
+            ]
+        },
+        "endpoint": {
+            "protocolVersion": "3.0",
+            "osVersion": "H5",
+            "ultronage": "true",
+            "mode": ""
+        },
+        "hierarchy": {
+            "component": [
+                "dmContactTitle",
+                "dmDeliveryTip",
+                "dmPayDetailPopup",
+                "dmPayTypeTitle",
+                "dmPayTypeBlock",
+                "dmViewer",
+                "dmDeliveryTicketAddress",
+                "dmItemInfo",
+                "dmDeliveryFee",
+                "dmTopNotificationBlock",
+                "dmPromotionBlock",
+                "dmPayType",
+                "dmContactPhone",
+                "order",
+                "dmItemBlock",
+                "dmNewProtocol",
+                "item",
+                "dmTicketsInfo",
+                "dmOrderSubmitBlock",
+                "dmDeliveryAddress",
+                "dmContactName",
+                "dmTopNotification",
+                "dmDeliverySelectCard",
+                "confirmOrder",
+                "dmViewerBlock",
+                "dmContactBlock",
+                "dmDeliveryWayBlock",
+                "dmEttributesHiddenBlock",
+                "dmContactEmail",
+                "dmDeliveryMachineAddress",
+                "dmInvoiceBlock",
+                "dmSubmit",
+                "dmViewerTitle",
+                "dmPayDetailPopupWindowBlock"
+            ],
+            "baseType": [
+                "dinamicx$3129$dmbuysubmit",
+                "dinamicx$3507$dmrigtharrow",
+                "dinamicx$3172$dmdeliveryfee",
+                "native$null$dmpaydetail",
+                "dinamicx$30208$maoxpopupbottom",
+                "native$null$dmviewer",
+                "dinamicx$18635$dmprotocol",
+                "block$null$emptyBlock",
+                "dinamicx$3128$dminput",
+                "dinamicx$3032$dmtopnotification201904",
+                "block$null$dmettributeshidden",
+                "dinamicx$3127$dmselectheader",
+                "dinamicx$3107$dmdeliverytip201904",
+                "dinamicx$3110$dmdeliveryaddress201904",
+                "dinamicx$30207$maoxpopuptitle",
+                "dinamicx$2974$dmbuyticketsinfo201904",
+                "dinamicx$2956$dmbuyitem201904",
+                "dinamicx$3116$dmcontactsphone201904",
+                "native$null$dmpaytype",
+                "dinamicx$3207$dmviewerheader",
+                "dinamicx$3108$dmdeliveryticketaddressinfo"
+            ],
+            "root": "confirmOrder_1",
+            "structure": {
+                "dmContactBlock_DmContactBlock": [
+                    "dmContactTitle_597266",
+                    "dmContactName_597267",
+                    "dmContactEmail_597269",
+                    "dmContactPhone_597268"
+                ],
+                "dmItemBlock_DmItemBlock": [
+                    "dmItemInfo_597252",
+                    "dmTicketsInfo_597253"
+                ],
+                "dmDeliveryWayBlock_DmDeliveryWayBlock": [
+                    "dmDeliverySelectCard_597257",
+                    "dmDeliveryTip_597258",
+                    "dmDeliveryAddress_597259",
+                    "dmDeliveryFee_597260",
+                    "dmDeliveryMachineAddress_597262",
+                    "dmDeliveryTicketAddress_597263"
+                ],
+                "dmViewerBlock_DmViewerBlock": [
+                    "dmViewerTitle_597255",
+                    "dmViewer_597255"
+                ],
+                "order_bcac2aa16e7328717c898817f6bed1bf": [
+                    "item_1bb4f24223ff1a2a4fcb943b7807e1a4"
+                ],
+                "dmPayTypeBlock_DmPayTypeBlock": [
+                    "dmPayTypeTitle_597276",
+                    "dmPayType_597276"
+                ],
+                "dmOrderSubmitBlock_DmOrderSubmitBlock": [
+                    "dmNewProtocol_597282",
+                    "dmSubmit_597283"
+                ],
+                "confirmOrder_1": [
+                    "dmTopNotificationBlock_DmTopNotificationBlock",
+                    "dmItemBlock_DmItemBlock",
+                    "dmViewerBlock_DmViewerBlock",
+                    "dmDeliveryWayBlock_DmDeliveryWayBlock",
+                    "dmContactBlock_DmContactBlock",
+                    "order_bcac2aa16e7328717c898817f6bed1bf",
+                    "dmInvoiceBlock_DmInvoiceBlock",
+                    "dmPromotionBlock_DmPromotionBlock",
+                    "dmPayTypeBlock_DmPayTypeBlock",
+                    "dmOrderSubmitBlock_DmOrderSubmitBlock",
+                    "dmEttributesHiddenBlock_DmAttributesBlock"
+                ],
+                "dmPayDetailPopupWindowBlock_597283_window_root": [
+                    "dmPayDetailPopup_597279"
+                ],
+                "dmTopNotificationBlock_DmTopNotificationBlock": [
+                    "dmTopNotification_597250"
+                ]
+            }
+        },
+        "linkage": {
+            "common": {
+                "structures": "H4sIAAAAAAAAAJVUTW+jMBD9L5x7CJ82vXWbrjaHZiMVtYdVhYw9qFYBI8dpFK3632s8QAzqYffmefP8\/OZD\/htw1dVSt7+1AF2Gwe2fQLSF6vfKyFpyZqTqfjSKv5fbb+HgxvJ3BtqJNJ9d5lnCGfSU8yKX3UIjP0BfXthloqwhx7tXnWHcTBw\/tHnlrFec8YixMAMSR5SEhNOc0pDUWQUirGontOs+lOQwCfmhyx+0am3h15KXAHLYpbj0s8bBC13edfLpVLVyNryGHO\/BGC2rk4HjLykEzF2+m3FnM3gdOuyXbCfhhziyESmkaaBMcxJlmXtlxPesHWHiww8tkw3Scx8\/vKlu5FM0sJ6LNbGG0MiEPkED3NwzLZx+iu9O2UL2CFP37ATfCaHheMQUOppSP2E0tFnceGT8TXbgX8yiBaOQ\/B3MghBjTfOq2mLmM1YxhLuuVugEBVHoeIVHmfV0rdoaQtE9nO0+GcUV9pyiLu6Ke4mOknaptmDsbA6qP\/UvshPqjEs7jJbG5dlBpVbKoPbyhhMjOZbpb6j15ofz3WGjr7tDcHdGJoplKPY\/X8N3fwk2dINi3n9gjXkR+kLgaitN3WARRqF0EFL\/9gFYO9KOtQyrKqmjJIriug5ZxJKaV3kSV4RuCIQsCV4\/vwAYlPRgFwUAAA==",
+                "submitParams": "^^$$Z5247ba2cbedc6cd5ee779e9915598fd23|!ali.china.damai|null|null|null{$_$}H4sIAAAAAAAAAN1Y0W7juBX9FUPzMgOksihLtpK+NOM4u9mJYzdxMrvoFAIlXcVsJFGlqCSeYD5i\/2HR\/kOBfk5R9C96SMlOsjPBTNE+9SWQLy8vLw8Pz73Mg5MrXtKdVDdLjq\/mpKwL5+DBqQuuc6nK1aYm8zsteNOcwdU5cFJZurwQCU+4qxXPyE0LQZV2S5lR4TayVSm5yycRrnxnz6m62d+H+JYqExXHSt6nPafm1\/TSOprLhEsXS9ayMmtkG8QRqVuS5k\/MxqGge\/ft5U++u9wG7GIj5YyXXGDdjJoUP\/\/xy1\/\/9be\/\/PPvP\/O6hrXk6oY07I9ZHh3OD0+eJsp8ZFrIlBcGgo\/reHrmwNI2pA6bRlxX34wSZtwKAJQq4lpU1wuVkXIV\/bmlRrvTp9bzztjlQepotWicgz88OKI5rGS1KWWL3zkvGkImlZCVjdVh+RtmYSZ1Kip6nKmpPMlMrn0ab8XHzt\/bc0Q\/OGHMCydREEz88Z7T3LRmRsjCMGCRz4IxC\/eclCttzJiGw+xWMb+DIBxhuI9+0c19AFJ0r9+2DXJpGuPnMAOfbG0QhyVJkPuB74\/ynHGfB3ma7AejZBJ5E2I8AAJJu\/l9yyst9MY5wN5Edfv423ORRyI+TsFAxAY73XQNhrnbg6+VLKUGQkDCntSaVxUV72hzLNVlWZuEPM8b4Y\/hqmiOMeGHdXMEmgnwtAdZJ1NZJrLfuC55UVjDojaxOzojMRBVqk23FHZpL8lFd+z2hHYjSHl2r6lqdpnB\/ZoqUlwTUOqXFc3CAHVSLYoM+ZYcZLVDn\/74iGGS8tTnnI1pMvKjCZuk0X4UsUk+TihjSd5hSGqOE8AFwY5hwYUVt7TN1eFZpjDcgyS68y1EdXPYDfQbz8StMCl3cIOPnaMsMuvwCZugU3ktGi3Sfub\/IGRFlDXbsI0FcoeQopSwkTnptcw6QjuVQaowNHv5ANa8uRJKt7w4Afl34bjWSiStJtwviB+4vmXsi0dhOF8UpAwCvh\/iBu17o8gcEJi7NXveOAiDkedHgblYora7mFU8AcjXu+V3Ixf89pl9LesahiXflOBYjykOs9IwbTlhLmezFqSeu9XdpJXi6Y3Z1UtpbVXAeSoD8bPrD+IgGkgPNcIGu+8YGuwcVG1R7CwZ5b+yAKOtBUJXIMOlghgadENcYg+Rm+wGovTiTcZZpmRAdnw2It\/zQjaOgDfEaRyFYTQKfWJemiCS1oaYziv9StSvXsXrMPY9FjiGnl2RMjBUpE35wyfMGRlp7vkzmy9XP5mtPq9kB44tYY9Vy9kWi2bTgES\/mp30otebmzVXhKBpJ0BIz0pU3FUiK6VGekxmGrW3L7nH54t5PD08X8WXF7NzTM\/h87bdnMm7x1M3NivIqaxyoUrLrQubk1XMZwVna0chsB79QnfcFkSZtcV2bct+YFPKRJjih8S+jOueg01ckTLKYI7HYG1soo9daln3DYPdp5u0osjctWkI4PXZzJYjylx+FEXBh6HrDV6L5RpdwG8H0+XloPseLC4GbByHg0Lc0GDOU2P48c3gsEY78J6Sd0IPx17oMpeFg9fvvl\/NT\/c63+8ovZFvBnO7qyELZyyIBnORKmkEkqprUsPI9dzR+LV3zyLUhcCfvBmckTYnOXx\/cnwyOOXVdYvrN7T9wKAUlVgqeY1Ganh3vz+KkoBlXjahCBfBUFs0z86sax86wXimDKI5o7sdHn0RaNq6lkqfE+gIqbtUj2Wpbx4MceYA+ZESDS5zRycH\/QqorIRUqKDbxqKvIsD\/jqtsams6JM9UBrimpm\/oLsbnhcoU9K5wzcEZsGJxNTu\/mB3G57OjeHZ2NTtdLGcIdTlfIhpg6ervZQ14bJG+Gh2dnM+mK4zC58vTtgOrxerw9Hhm4kEnrExcjVb8\/ljcw3R88iOCxHH8JymqWGT4gjWJw\/GIMX8ymYzDfRazzsfqh3EqUJ46z68KSRyXOubZbUxGqcmG78LZyhKjdVObmO7j2jbRdvzhw\/aOf3AOPjze8g\/OXv\/L2pn93Zb1tBOEzrhtRexg0yZPB61e\/O6OxD02e0e4c9aLa1le1IXQiMCwRN+B9SyyYX3Q2bPOadvAnZShsh0CQXlbYO4ng5KiCi1drEVJBsknAjsZYxxkAIAoOrYX+0K31cE07atQL58IZJmMAFU6XeP6GY2PtbwhIxf73sSn1M95NvazjNM4ZxRkScLHUZYnbDyahMwPc6PrinJSihRmrbWum4PhsOw6PTethtYBZCNhuzqGqx+5zN93\/dDcwW5vs+pWKFmZKoooF0fvfNeIVWMLBhvlKCsBZ0FCASWUp\/ts7HsphSGaW87h2JYiW\/WZr8DIKErTUR7kk2iUZpG3T8jYzyLGJ6PMQGbeCbZOY7X\/I0kzpRQvQ22JZ+vNSWZbpq829F++n1\/tYT+bZh9hdYZ22S6\/fT7tBA5PWdPRtopWeF7tOqzde6B79nYiJ5qpbPHOvGxQ5raqq6k+k7as7uYciSaVbaWPCX7m4bFt8PD9XzUWyymo8qSx+G52Njs\/PIXxP2ktbHHtVP\/zJgIP5LPFe0Q03cK2GmnVEk7SmF5sILC3b2kggAWC4z8Bjw0ETBX6FCzwjeXIsKpPz3cObHL\/Bs9MVsqpEAAA",
+                "validateParams": "^^$$c51ce6bbfb3cbe1aae1d085fdb76632f{$_$}H4sIAAAAAAAAAIVR22obMRT8Fz0bsRfvrtdv8mpN\/NBgaBroUzmWju3F2pWQFFon+CP6D6X9h0I\/p4T8Rc7GlJpAyNuZ0dHMaPTAth56\/Gr9YQ00hVXvDJs\/MGcgbq3vb44OR6wMhHBNq2zOlO05mG4DG+DRg0auTIdD5L3VaHiwd14hX18o3GZswobz7auCZut1NwA5JacJc7DDt3wi2A1YTpbODqOHPpJOp3iPES7occHgN7749Dnj63+CZ22KrKGHjnw1BkXw749fT79\/Pv75Ds4R24M\/YCT+f0opPojVZdA0o6TGKjBjBff7L801I+YuoBchdLvh\/ZbCHjxq7jwGegnEzg7cja1zCRFuqVL98gnnthB1s0d1aKhUNt+CCThhOCh\/dPFj9N2woxxVkuZFmdUykUIkszzN66TNmnYhp3laSlFleSnT2SJtZ2JZl1VdV1VaVnQil0VZ501aCtkmYto0WTFN2teYnU7PZuurbSMCAAA=",
+                "queryParams": "^^$$Z5da8374c0cd4636ef22b5514d8ff8e88c|!ali.china.damai|null|null|null{$_$}H4sIAAAAAAAAAN1Z23LcOJL9FQX7pTvCWyZAgBfNy8pSya1o3UYq2e1td1TgKnFURXJIlmW1wx8x\/7Cx+w8bsZ+zMTF\/MQcAWRdJPZ6HedoXqQgiE5mJkycT4JfItmJpHur2\/lLgV3eybBbR\/peoWYje1u1y9tgY96wWouvOMTXaj1S9nIhFKYUUk74V2kzUojRVP1nW2iwmXb1qlZlcbml4R6NXURWkf+T4Xbe6rARWir++ihpxa35vnV7UUtQTLNnUlVtDP0JPqSZL04utYTdhYT5P3tx8oJPLUWHQDZO1WIoS62rTKTz+33\/+99\/+57\/++r9\/EU2D0aVo702P8Y2VRwdnByfbhhIKSxe1EgsXgt\/u5ofnEUZWnWkPuq68rb4dpe5OtEZPmtZ08ET0ZV1NGhf1yR9Xpn30G+Aj1ZpKm\/aixR8\/6FSX3eEYg3em7SBLo\/2+XRnn4+MSCtdTYdPBrakUND5G+1YsOkwqq64Xi8XOxK2xAy2avm6vzcKo3uiXxGb17e3CnIquv4bxq+6lOZfY+jvRfWPWsNg\/VjWactzWyyNsdgm0DL40ba1M122b2blpB\/pPqw776Kdhc7q7+uGsbg3i4PzeyIfnWSvUvYutXD2a9gROUxrHKeMsiWnOELPeLN1wlBES8yxnLKPpnBPOGckpYSlxWEb4Lxoo\/+XX8fccaIz2q9VisR7Rxj4Z6QwcCnNaIxaw8bItlQMX4fEkjqG50\/dvyt8OkVUYRcZN1B2yZjKCGbmnjLePksTAdE7SnMI8hv+c5wmnhsRKQlPfl86P7\/rvyua77+Z3fE5jwqKvCBJStvw0ws9FQ5efSoevYd1\/I5AXWgO13RpiMN7jxK0OiUHFQZjlBuOQGv4nFim761XT1G1\/0d+Z9soog0Wq2\/WOrN+fHf3H7Pno4UtjddXVi1L7PNoSuYAznREnzfMx2Id3G+CCJpAlG3ND1gQqggOLsrrfdakyRt80WNKw4cV6ESRdcGugMsj39UM1yle2RqRcvEEYn7DPw4t1RNsxJuvlK\/Mw+HI0xHdYDEpu61p3T1RgOCgxZ6a\/q\/Va9bhZg33hLdAwZtg5eF4sdt86S4HiZV2t1fxelsDzAJUhOzHvvH4YyQlMb9prXxIcVCrTu2LjYuGg5yIRHI6mZ5ezDy6dduvGfuQLxqZGRCM1d48d8vOJtFx1ZQWkDsOecqEUpFRVLuFCJZgH3ve2OeJwlvWodEOBO766OJsfHlzN5jfX0yuIW8x5M7g1kosb8zhXdWXLdunp+trbFO0TLIms7oHxnfEvUbB6WOhB+PJT69ViXFuJtneFZVnL0pUaGPZy7iIpm2YoBfDL57MbKwfdy75uhvLs\/ZzIVbnQkztHWZj1THIloOWs\/q1cLMRrPon3vi8v71Bz\/7B3eHmzF37vXVzvETDg3qK8N3tnQrmBn3\/YO2hQfN8b+VPZv05jPiETwve+\/+nH2dnpqzD3rVH39Q97Z96r14RPCcv3zkrV1meOyatb077OJ\/EkSb+PP5M8jimj2Q9756Z3O\/n6\/cnxyd6pqG5XyNnXvvruLcuqvGzrWxTQ1w+fiySXjOhYZyYH2Tr6LLudPdsw0lOa787NwzoeA4q7wFdXBnAEP960m\/LTmj+vTNc74JwhyJus7FAwApwidAeAclvWbdk\/XgWBzcS6ccUfRPQlWi1Lx8yYDS5qHxsU1zY89+USq4glFohoktA0STlP+DE\/YJRn7CBNshxiSD8ksj0Ubfv41tHCZpnQR8ygB4jclIYsBb5cbfOpjfm\/fInqVe94MCJSMovY08RaIqhgVsmCJTLL48wQwZxX6GKq\/mLVe2R7KZmaQuUJpiVSSTc9Y1missIoniTEVRCH64Fpx7K6XVUdLy4WYxXmKLdFnOQYvV85qZ2aC2Ur9E\/1en1w7ScHW4BoWKJDL+NLI179eSWqHrvgs7KsPsH4un3843oUxXbIVvM8VAn6VpD+4cIIbMuADYVNEWj5hsU+oTTDxtCMgf0GxtztGsizvmGceVq6nuWXnekImAvajtvRrz72YNt\/phfHLqGxHNeYlGiPJ2ezukFKePvwB5UIa6AGmhYVDR6M0G8WJSwannAKUOamM0dDW3BSnYzQWc8BBtG8eKxfo8ivx8GLXT++8WTZGdCl3hr6Cq88P3mrdsEolVBUCJKaLKF5RjKVF3lOMptKo4m0sN6Lvm3rVTMw\/vX09NRzdot67Nro6750Xd7gzb159LPfAA4RRbMUgDZqOkXxALJPXBb98u1kgO1j7+PN93TdiqpzrU6os4NZvotyPbxGKDehfgBs39azGuPu0LI2s3SUtDvZ5Wx3VuvSllsKdrD3FKkutuYz2sQxtl+i6c+HpzdH0\/mbD\/Pz6fvZxfn87dXBh\/lP0w8jgC\/eTa+upwfzq+nRfHr+bnp6cTlFrG7OLhEk8O2ydtx104B3fV\/6Ljk6uZqiQ3vl5rwsNr6YXcwOTo+nTh+aXN\/jvktm4vNx+RlDxyc\/Q4no6+V1QKDPgZdLt0KjXy9NO4QXjC9Wix7ioTmGfvw2lZALcyi6uxInqaGvwEIeC3g\/tGJr6o8oKpBvvFfycLdj+PcHU34uq\/mDCa3DatlsZhC4kuAPdYUbydl7+wd6ApK+fBtJ+5Gc8xRUSbMsS3lB5s6BbybAMzFnAY49TeM6j39hlRmJBN7sENX8Oa\/9XkFCQxwOLCPhfePU8itcgYRGefMd8zrD1ocFf5hwXfA6b4aqvX6B3mLzbqfxPugeK3WMmjG8x2Iw3J3lTb8552yGjmYX2EjXFuP0GXJgy6DL2vUDxhzjCI3ovyvHrgDTn706NZ9cK+qqTr2U9VBFLMTflrZ3bf06wccQgLX9HYHD0rgV394JzNzqxJ0vbq2n3c9wyIU5Q7F9WjP\/\/3WG\/6Cl\/mfa55Hzh517qQ\/vXEcQkcTiVM4EYdIwI41VBUlprAx3nZwQjqM+j+Qcffk4nlM+RvsfNyeVj9Gr4cmPE\/+8IaAwOFKQf9mt+WujaYfB\/Kw102ISwRK7dOglPSH6yduEG5QGyv0Yfd3y4kL+CfcCDqVr5eEwtMumw\/lrWyei9TKJ71qFaf8Kkt70hy6jkRmHQt2h\/LoeDgPIy3Dd2F2jzcNlV4t3fn+2znpzbAS2KdEptbgOyllSpDi5EGnymDFcvdhMS6t99PTysEbLqvo3uEK8nx\/tPIZIq4LFghSEJtQkaPyKzFKRMqEYA1rErpoprjMXc8yhaeHF00KwOBNo31MqWc5lbgwVcYE2ulAZlbvi7ogYpDMvLYVRmWQs1Zk1jLI8Y2mqLOdU8CxVdFfaHwuDeO7FecFS3JgVWiUiN0rCbcLTghH0bhzA3xWflf1iWD314rmmktoilyiiWNFmMTTEsTVK5ETzcfXxFmS49vAG8OC9MobkWQHncWrMsRkJziOE6YznBbRhkssgXCOGq65jM6wfB\/MTo6jmOOtwo5PcKi4SySghQgsec\/i4I41jL67hxgucEAfY6KCAYxJnSnGZUZZlJmM4C8UJQ2Bw1hH2iaJw\/4KDmw6+hL2wJlEqy7TFHSNil1ud0zi1ONRqnViGkO1YM0N3a\/rtmKSJN4Zkkij4TywvQDtJloGJrLTADGGEPjVmVjbBirClNI+tVQk3RSopj1OEUwAO2mRS5DpXT6x4Lx5HZI9BHoe8ManhJicmSxNANNFZJqVMKOMSKDc8GZ2a9n1bylVvuh9LVMFq1HmwHvcjXiUiWyiWSkttmiWptnlmtKWUgWJFTLG1Pk4n1acal0yjpu1Hr8ZyTXRemEQYkloEWvBUyFTFcZEZxkbouDPPWsf42yvAXYXIkoImmlgmJc2IzHUilLQxIs\/4aIcrs7gFDEEOeFEWQBMmIbkE2AktNMlEkSSxoUUqyBhkHAXQd\/e1qkPK50HaFgTQhlCutEHC68JwlUptU1QdS0bi8W3o9UouyzX5PB3yfhQ2L2ANLrVjjerEYpoBh1xapJQqRKg6GncGj+E2\/rJuVs37stL1QwiMY6M8mT\/4oXlb133QqzQr4A52PKMa8LG4ykhZViDPOSlGJ3f1+ihlIbmxv8aSIuYq00mcxsoClAz3XZKmAOlID1DgDgPjJm0\/ejtEZmNNtY6JyRnOkric0DkzqM+SFKDLYZ8GuQ1JZYGkkEwyKQoQfKGEzJiiiDXYAUa5Aj9GexAP9g\/0JkQirOVAhKXYGKsospBQhcCQnCBbPVDXR6u1B2Of6QcC1ogkOCLg20NhVYzvEA5tBMdhwD7hxZjTYbe9DXkgg1hRS3UKrGiSMFlYh08NZ3hiJbhqsCGQSbfBaZBOFA7gsuCKyZgKSGirETGB1FEWuTJK1805Doe2VP5OfvQDlw7Phr03YKEckDWgyARVlKWFwQ1XIbArnDLNXlYbEigwdyGEUvCDamFkIZ09MfJHo5ZwCWYYNLwrzYNpR3u2ngIwjNVAeBFnJFegOkSFamkEhSoj4pFIgtgGFxyZ7bo00KlhqVEMQY0TmzOZp5TBKAAu17vSwfZBUBrkgaZEGcAgFlRTSmWc4gqTxLjg8La7q7L5t+7kvB0Fy7A+NwbZi2qaq1SjdUArYk2GT0MhmP62ZP6tU2XYHEWQH0gTAk5QBvYhY3P8VTKNUWq9eT2+G7gvV\/6r4sgHx8h80w7dkWRScJvS1GpLEs4KSTQTLAdJShqzAJ0X1fxohJ7\/7htvozVSKop7QmRTwRmPSVYwdNwi0ZLEDJTletPh8n74XPr179dNxOTzHgAA",
+                "compress": true
+            },
+            "signature": "194890bd49137e494981fedb86ed9838",
+            "input": [
+                "dmEttributesHiddenBlock_DmAttributesBlock",
+                "dmViewer_597255",
+                "dmContactPhone_597268",
+                "dmDeliverySelectCard_597257",
+                "dmPayType_597276",
+                "dmContactName_597267",
+                "dmContactEmail_597269",
+                "dmDeliveryAddress_597259"
+            ],
+            "request": [
+                "dmViewerTitle_597255",
+                "dmDeliverySelectCard_597257",
+                "dmDeliveryAddress_597259"
+            ]
+        }
+    },
+    "v": "4.0",
+    "ret": [
+        "SUCCESS::调用成功"
+    ]
+}
